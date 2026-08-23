@@ -1,4 +1,5 @@
-import { supabase } from '../supabaseClient';
+const fs = require('fs');
+const content = `import { supabase } from '../supabaseClient';
 
 let currentChurchId = null;
 let isGlobalAdmin = false;
@@ -202,3 +203,7 @@ appId: '',
 };
 
 export default base44;
+`;
+
+fs.writeFileSync('src/api/base44Client.js', content);
+console.log('base44Client.js rewritten successfully');
