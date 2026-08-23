@@ -119,7 +119,8 @@ const channel = supabase.channel(`${tableName}-changes`).on('postgres_changes', 
 return channel;
 },
 };
-}const entities = new Proxy({}, {
+}
+const entities = new Proxy({}, {
 get(target, prop) {
 const tableName = entityTableMap[prop];
 if (tableName) {
