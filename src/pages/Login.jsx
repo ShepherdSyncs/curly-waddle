@@ -6,6 +6,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 export default function Login() {
 const [email, setEmail] = useState('');
 const [password, setPassword] = useState('');
+const [phone, setPhone] = useState('');
 const [isSignUp, setIsSignUp] = useState(false);
 const [loading, setLoading] = useState(false);
 const [error, setError] = useState('');
@@ -96,7 +97,7 @@ if (matchedMember) {
 await supabase.from('users').insert({
 id: data.user.id,
 email: email,
-full_name: matchedMember.display_name || `${matchedMember.first_name || ''} ${matchedMember.last_name || ''}`.trim(),
+full_name: matchedMember.display_name || (matchedMember.first_name || '') + ' ' + (matchedMember.last_name || ''),
 church_id: matchedMember.church_id,
 role: 'church_member',
 status: 'active',
@@ -130,4 +131,35 @@ setError(err.message);
 setLoading(false);
 }
 };
+
+return (<div style={{ maxWidth: '400px', margin: '80px auto', padding: '20px' }}>
+<h2 style={{ textAlign: 'center', marginBottom: '24px' }}>ShepherdSyncs</h2>
+<h3 style={{ textAlign: 'center', marginBottom: '24px' }}>{isSignUp? 'Create Account': 'Sign In'}</h3>
+{error && <div style={{ background: '#fee', padding: '12px', borderRadius: '8px', marginBottom: '16px', color: '#c00' }}>{error}</div>}
+{message && <div style={{ background: '#efe', padding: '12px', borderRadius: '8px', marginBottom: '16px', color: '#060' }}>{message}</div>}
+<form onSubmit={isSignUp? handleSignUp: handleLogin}>
+<div style={{ marginBottom: '16px' }}>
+<label style={{ display: 'block', marginBottom: '4px' }}>Email</label>
+<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+</div>
+<div style={{ marginBottom: '16px' }}>
+<label style={{ display: 'block', marginBottom: '4px' }}>Password</label>
+<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+</div>
+{isSignUp && (<div style={{ marginBottom: '16px' }}>
+<label style={{ display: 'block', marginBottom: '4px' }}>Phone (optional)</label>
+<input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(555) 123-4567" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+</div>)}
+<button type="submit" disabled={loading} style={{ width: '100%', padding: '10px', background: '#00B4D8', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' }}>
+{loading? 'Please wait...': isSignUp? 'Create Account': 'Sign In'}
+</button>
+</form>
+<p style={{ textAlign: 'center', marginTop: '16px' }}>
+{isSignUp? 'Already have an account?': "Don't have an account?"}{' '}
+<button onClick={() => { setIsSignUp(!isSignUp); setError(''); setMessage(''); }} style={{ background: 'none', border: 'none', color: '#00B4D8', cursor: 'pointer', textDecoration: 'underline' }}>
+{isSignUp? 'Sign In': 'Create Account'}
+</button>
+</p>
+</div>);
+}
 
