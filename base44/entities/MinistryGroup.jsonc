@@ -1,0 +1,160 @@
+{
+  "name": "MinistryGroup",
+  "type": "object",
+  "properties": {
+    "church_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "description": "Group name e.g. Worship Team"
+    },
+    "description": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "worship",
+        "youth",
+        "greeters",
+        "pastoral",
+        "janitorial",
+        "outreach",
+        "prayer",
+        "media",
+        "hospitality",
+        "other"
+      ],
+      "default": "other"
+    },
+    "leader_email": {
+      "type": "string",
+      "description": "Email of the assigned group leader"
+    },
+    "leader_name": {
+      "type": "string"
+    },
+    "attendance_leader_email": {
+      "type": "string",
+      "description": "Email of person authorized to take attendance (but not edit group or schedule)"
+    },
+    "attendance_leader_name": {
+      "type": "string"
+    },
+    "color": {
+      "type": "string",
+      "default": "#6366f1"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "church_id",
+    "name"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.leader_email": "{{user.email}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "church_admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.church_id": "{{user.data.church_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.leader_email": "{{user.email}}"
+        },
+        {
+          "$and": [
+            {
+              "data.church_id": "{{user.data.church_id}}"
+            },
+            {
+              "user_condition": {
+                "role": "church_admin"
+              }
+            }
+          ]
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.leader_email": "{{user.email}}"
+        },
+        {
+          "$and": [
+            {
+              "data.church_id": "{{user.data.church_id}}"
+            },
+            {
+              "user_condition": {
+                "role": "church_admin"
+              }
+            }
+          ]
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    }
+  }
+}

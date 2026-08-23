@@ -1,0 +1,35 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "global_admin",
+        "church_admin",
+        "ministry_staff",
+        "church_staff",
+        "attendance_tracker",
+        "user"
+      ],
+      "default": "user",
+      "description": "Access level role"
+    },
+    "church_id": {
+      "type": "string",
+      "description": "ID of the church this user belongs to"
+    },
+    "church_name": {
+      "type": "string",
+      "description": "Name of the church for display"
+    },
+    "extra_permissions": {
+      "type": "array",
+      "description": "Granular extra permissions granted beyond the user's base role",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": []
+}

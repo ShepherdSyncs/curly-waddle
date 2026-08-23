@@ -1,0 +1,104 @@
+{
+  "properties": {
+    "available": {
+      "default": true,
+      "description": "Whether this member is currently available to be scheduled for serving",
+      "type": "boolean"
+    },
+    "church_id": {
+      "type": "string"
+    },
+    "group_id": {
+      "type": "string"
+    },
+    "in_directory": {
+      "default": false,
+      "description": "Whether member has a directory profile",
+      "type": "boolean"
+    },
+    "member_email": {
+      "type": "string"
+    },
+    "member_name": {
+      "type": "string"
+    },
+    "role_in_group": {
+      "description": "e.g. Vocalist, Lead Guitar, Head Greeter",
+      "type": "string"
+    }
+  },
+  "required": [
+    "group_id",
+    "church_id",
+    "member_name"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.member_email": "{{user.email}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.member_email": "{{user.email}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.church_id": "{{user.data.church_id}}"
+        },
+        {
+          "data.member_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.member_email": "{{user.email}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "name": "MinistryGroupMember"
+}

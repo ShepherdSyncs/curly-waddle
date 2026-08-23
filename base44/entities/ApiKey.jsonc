@@ -1,0 +1,166 @@
+{
+  "description": "Per-church API keys for external/third-party integrations against the public REST API.",
+  "properties": {
+    "church_id": {
+      "description": "Church this key belongs to",
+      "type": "string"
+    },
+    "created_by_email": {
+      "type": "string"
+    },
+    "is_active": {
+      "default": true,
+      "type": "boolean"
+    },
+    "key_hash": {
+      "description": "SHA-256 hash of the full API key",
+      "type": "string"
+    },
+    "key_prefix": {
+      "description": "First 12 chars of the key, shown in the UI for identification (full key is never stored or shown again)",
+      "type": "string"
+    },
+    "last_used_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "name": {
+      "description": "Human label, e.g. 'Church Website Integration'",
+      "type": "string"
+    },
+    "rate_limit_window_count": {
+      "default": 0,
+      "description": "Requests made within the current rate-limit window",
+      "type": "number"
+    },
+    "rate_limit_window_start": {
+      "description": "Start of the current rate-limit window (best-effort per-minute limiter)",
+      "format": "date-time",
+      "type": "string"
+    },
+    "request_count": {
+      "default": 0,
+      "type": "number"
+    },
+    "scopes": {
+      "description": "Granted scopes, e.g. ['members:read','events:read','attendance:write']",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "church_id",
+    "name",
+    "key_hash"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "$and": [
+            {
+              "data.church_id": "{{user.data.church_id}}"
+            },
+            {
+              "user_condition": {
+                "role": "church_admin"
+              }
+            }
+          ]
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "$and": [
+            {
+              "data.church_id": "{{user.data.church_id}}"
+            },
+            {
+              "user_condition": {
+                "role": "church_admin"
+              }
+            }
+          ]
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "$and": [
+            {
+              "data.church_id": "{{user.data.church_id}}"
+            },
+            {
+              "user_condition": {
+                "role": "church_admin"
+              }
+            }
+          ]
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "$and": [
+            {
+              "data.church_id": "{{user.data.church_id}}"
+            },
+            {
+              "user_condition": {
+                "role": "church_admin"
+              }
+            }
+          ]
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "name": "ApiKey"
+}

@@ -1,0 +1,149 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-sans: 'Inter', sans-serif;
+    --font-serif: 'Playfair Display', serif;
+    --font-heading: 'Montserrat', sans-serif;
+
+    /* ShepherdSyncs Brand Colors */
+    --ss-bg-primary: #071920;
+    --ss-bg-secondary: #0B2A33;
+    --ss-teal: #1F7A8C;
+    --ss-teal-bright: #2FA4B5;
+    --ss-teal-glow: #38C6D7;
+    --ss-teal-deep: #145B66;
+    --ss-text-primary: #D1D5D9;
+    --ss-text-secondary: #9DA7AC;
+    --ss-text-muted: #5C6B70;
+    --ss-glass: rgba(255, 255, 255, 0.06);
+    --ss-glow: rgba(56, 198, 215, 0.35);
+    --ss-gold: #D4A843;
+
+    /* Base Design Tokens */
+    --background: 225 30% 8%;
+    --foreground: 220 20% 95%;
+    --card: 225 25% 12%;
+    --card-foreground: 220 20% 95%;
+    --popover: 225 25% 12%;
+    --popover-foreground: 220 20% 95%;
+    --primary: 180 64% 46%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 180 64% 46%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 225 20% 16%;
+    --muted-foreground: 220 10% 55%;
+    --accent: 180 64% 46%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 225 15% 20%;
+    --input: 225 15% 20%;
+    --ring: 180 64% 46%;
+    --chart-1: 180 64% 46%;
+    --chart-2: 180 58% 42%;
+    --chart-3: 180 50% 38%;
+    --chart-4: 180 45% 34%;
+    --chart-5: 180 40% 30%;
+    --radius: 0.625rem;
+    --sidebar-background: 7 82% 6%;
+    --sidebar-foreground: 220 20% 90%;
+    --sidebar-primary: 180 64% 46%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 12 100% 30%;
+    --sidebar-accent-foreground: 220 20% 90%;
+    --sidebar-border: 225 20% 18%;
+    --sidebar-ring: 180 64% 46%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+}
+
+/* Light Theme Override */
+[data-theme="light"] {
+  --ss-bg-primary: #F8F9FA;
+  --ss-bg-secondary: #C4CED8;
+  --ss-teal: #00B4D8;
+  --ss-teal-bright: #00B4D8;
+  --ss-teal-glow: #00B4D8;
+  --ss-teal-deep: #0086A8;
+  --ss-text-primary: #0D1B2A;
+  --ss-text-secondary: #4A5560;
+  --ss-text-muted: #7A8590;
+  --ss-glass: rgba(13, 27, 42, 0.04);
+  --ss-glow: rgba(0, 180, 216, 0.2);
+  --ss-gold: #D4A843;
+
+  --background: 210 9% 98%;
+  --foreground: 209 53% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 209 53% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 209 53% 11%;
+  --primary: 190 100% 42%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 20% 81%;
+  --secondary-foreground: 209 53% 11%;
+  --muted: 210 16% 92%;
+  --muted-foreground: 209 20% 42%;
+  --accent: 42 50% 90%;
+  --accent-foreground: 209 53% 11%;
+  --destructive: 0 62% 45%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 210 16% 88%;
+  --input: 210 16% 88%;
+  --ring: 190 100% 42%;
+  --chart-1: 190 100% 42%;
+  --chart-2: 42 63% 55%;
+  --chart-3: 209 53% 30%;
+  --chart-4: 210 20% 60%;
+  --chart-5: 190 60% 55%;
+  --sidebar-background: 209 53% 11%;
+  --sidebar-foreground: 210 9% 98%;
+  --sidebar-primary: 190 100% 52%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 190 50% 20%;
+  --sidebar-accent-foreground: 210 9% 98%;
+  --sidebar-border: 209 40% 20%;
+  --sidebar-ring: 190 100% 52%;
+}
+
+/* Safe area insets for mobile notches/home indicators */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+/* Prevent text selection on interactive UI elements */
+button,
+a,
+nav,
+[role="tab"],
+[role="button"] {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ShepherdSyncs Pulse Animation */
+@keyframes ss-pulse {
+  0%, 100% { box-shadow: 0 0 10px var(--ss-glow); }
+  50% { box-shadow: 0 0 25px var(--ss-glow); }
+}
+
+.ss-live {
+  animation: ss-pulse 2.5s infinite;
+}

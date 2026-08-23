@@ -1,0 +1,92 @@
+{
+  "name": "ChurchChatMessage",
+  "type": "object",
+  "properties": {
+    "church_id": {
+      "type": "string"
+    },
+    "channel_type": {
+      "type": "string",
+      "enum": [
+        "general",
+        "group"
+      ],
+      "description": "general = church-wide channel; group = ministry group channel"
+    },
+    "group_id": {
+      "type": "string",
+      "description": "MinistryGroup id \u2014 set when channel_type is 'group'"
+    },
+    "group_name": {
+      "type": "string"
+    },
+    "sender_id": {
+      "type": "string",
+      "description": "base44 user id"
+    },
+    "sender_name": {
+      "type": "string"
+    },
+    "sender_email": {
+      "type": "string"
+    },
+    "sender_role": {
+      "type": "string",
+      "description": "Role at time of send"
+    },
+    "body": {
+      "type": "string"
+    },
+    "is_announcement": {
+      "type": "boolean",
+      "default": false,
+      "description": "True = mass message / announcement from admin or group leader"
+    },
+    "pinned": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "church_id",
+    "channel_type",
+    "body",
+    "sender_name"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": null,
+    "update": {
+      "$or": [
+        {
+          "data.sender_email": "{{user.email}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.sender_email": "{{user.email}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,174 @@
+{
+  "name": "MemberProfile",
+  "type": "object",
+  "properties": {
+    "church_id": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "display_name": {
+      "type": "string"
+    },
+    "bio": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "birthday": {
+      "type": "string",
+      "format": "date"
+    },
+    "profile_photo_url": {
+      "type": "string"
+    },
+    "ministry_roles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "prayer_partner": {
+      "type": "boolean",
+      "default": false,
+      "description": "Available for prayer partnerships"
+    },
+    "privacy_phone": {
+      "type": "string",
+      "enum": [
+        "public",
+        "members_only",
+        "private"
+      ],
+      "default": "members_only"
+    },
+    "privacy_address": {
+      "type": "string",
+      "enum": [
+        "public",
+        "members_only",
+        "private"
+      ],
+      "default": "private"
+    },
+    "privacy_email": {
+      "type": "string",
+      "enum": [
+        "public",
+        "members_only",
+        "private"
+      ],
+      "default": "members_only"
+    },
+    "privacy_birthday": {
+      "type": "string",
+      "enum": [
+        "public",
+        "members_only",
+        "private"
+      ],
+      "default": "members_only"
+    },
+    "show_in_directory": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "church_id",
+    "user_email"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.church_id": "{{user.data.church_id}}"
+        },
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "$and": [
+            {
+              "data.church_id": "{{user.data.church_id}}"
+            },
+            {
+              "user_condition": {
+                "role": "church_admin"
+              }
+            }
+          ]
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    }
+  }
+}

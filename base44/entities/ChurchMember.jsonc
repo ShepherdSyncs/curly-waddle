@@ -1,0 +1,166 @@
+{
+  "name": "ChurchMember",
+  "type": "object",
+  "properties": {
+    "church_id": {
+      "type": "string",
+      "description": "ID of the church this member belongs to"
+    },
+    "member_id": {
+      "type": "string",
+      "description": "Unique member ID with church code prefix (e.g. BCC1568)"
+    },
+    "first_name": {
+      "type": "string"
+    },
+    "last_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "date_of_birth": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of birth"
+    },
+    "date_of_death": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of passing (if applicable)"
+    },
+    "baptism_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Water baptism date"
+    },
+    "holy_ghost_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Holy Ghost/Spirit baptism date"
+    },
+    "wedding_anniversary": {
+      "type": "string",
+      "format": "date",
+      "description": "Wedding anniversary date"
+    },
+    "member_since": {
+      "type": "string",
+      "format": "date"
+    },
+    "join_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Official membership join date (used for anniversary tracking)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "visitor"
+      ],
+      "default": "active"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "documents": {
+      "type": "array",
+      "description": "Attached documents (PDFs, certificates, forms)",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "uploaded_at": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "church_id",
+    "first_name",
+    "last_name"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.email": "{{user.email}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.church_id": "{{user.data.church_id}}"
+        },
+        {
+          "data.email": "{{user.email}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.church_id": "{{user.data.church_id}}"
+        },
+        {
+          "data.email": "{{user.email}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.church_id": "{{user.data.church_id}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

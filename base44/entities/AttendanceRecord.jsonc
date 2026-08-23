@@ -1,0 +1,108 @@
+{
+  "properties": {
+    "age_group": {
+      "description": "Age group: infants 0-2, littles 2-8, young 8-17, adults 18+",
+      "enum": [
+        "infants",
+        "littles",
+        "young",
+        "adults"
+      ],
+      "type": "string"
+    },
+    "church_id": {
+      "type": "string"
+    },
+    "date": {
+      "format": "date",
+      "type": "string"
+    },
+    "member_email": {
+      "type": "string",
+      "description": "Email of the member for self-access RLS"
+    },
+    "member_id": {
+      "type": "string"
+    },
+    "member_name": {
+      "description": "Denormalized member name for quick display",
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "present": {
+      "default": true,
+      "type": "boolean"
+    },
+    "service_type": {
+      "default": "sunday_morning",
+      "enum": [
+        "sunday_morning",
+        "sunday_evening",
+        "wednesday",
+        "bible_study",
+        "special_event",
+        "other"
+      ],
+      "type": "string"
+    }
+  },
+  "required": [
+    "church_id",
+    "member_id",
+    "date",
+    "service_type"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.church_id": "{{user.data.church_id}}"
+        },
+        {
+          "data.member_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "name": "AttendanceRecord"
+}

@@ -1,0 +1,105 @@
+{
+  "name": "VisitorChatSession",
+  "type": "object",
+  "properties": {
+    "church_id": {
+      "type": "string",
+      "description": "ID of the church"
+    },
+    "church_name": {
+      "type": "string"
+    },
+    "visitor_name": {
+      "type": "string",
+      "description": "Optional name provided by the visitor"
+    },
+    "visitor_email": {
+      "type": "string",
+      "description": "Optional email for pastoral follow-up"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ai_active",
+        "waiting_for_pastoral",
+        "pastoral_active",
+        "closed"
+      ],
+      "default": "ai_active",
+      "description": "ai_active = AI handling; waiting_for_pastoral = forwarded to team; pastoral_active = staff joined; closed = ended"
+    },
+    "is_during_service": {
+      "type": "boolean",
+      "default": false,
+      "description": "True if the visitor started chatting during a live service"
+    },
+    "last_message_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "pastoral_joined_by": {
+      "type": "string",
+      "description": "Email of the staff member who joined the chat"
+    },
+    "pastoral_joined_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "church_id"
+  ],
+  "rls": {
+    "create": null,
+    "read": {
+      "$or": [
+        {
+          "data.church_id": "{{user.data.church_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.church_id": "{{user.data.church_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.church_id": "{{user.data.church_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    }
+  }
+}

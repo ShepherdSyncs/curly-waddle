@@ -1,0 +1,187 @@
+{
+  "name": "FamilyGroup",
+  "type": "object",
+  "properties": {
+    "church_id": {
+      "type": "string"
+    },
+    "family_name": {
+      "type": "string",
+      "description": "e.g. 'The Johnson Family'"
+    },
+    "head_of_household_id": {
+      "type": "string",
+      "description": "ChurchMember id of the head of household"
+    },
+    "head_of_household_name": {
+      "type": "string"
+    },
+    "head_of_household_email": {
+      "type": "string",
+      "description": "Email of HOH for RLS and portal access"
+    },
+    "members": {
+      "type": "array",
+      "description": "Family members and their relationship to head of household",
+      "items": {
+        "type": "object",
+        "properties": {
+          "member_id": {
+            "type": "string"
+          },
+          "member_name": {
+            "type": "string"
+          },
+          "member_email": {
+            "type": "string"
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "spouse",
+              "child",
+              "grandchild",
+              "niece",
+              "nephew",
+              "grandparent",
+              "other"
+            ]
+          }
+        }
+      }
+    },
+    "member_emails": {
+      "type": "array",
+      "description": "Flat list of all family member emails for RLS",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "church_id",
+    "family_name",
+    "head_of_household_id"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "data.church_id": "{{user.data.church_id}}"
+            },
+            {
+              "user_condition": {
+                "role": "church_admin"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.church_id": "{{user.data.church_id}}"
+        },
+        {
+          "data.head_of_household_email": "{{user.email}}"
+        },
+        {
+          "data.member_emails": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.head_of_household_email": "{{user.email}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "$and": [
+            {
+              "data.church_id": "{{user.data.church_id}}"
+            },
+            {
+              "user_condition": {
+                "role": "church_admin"
+              }
+            }
+          ]
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.head_of_household_email": "{{user.email}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "$and": [
+            {
+              "data.church_id": "{{user.data.church_id}}"
+            },
+            {
+              "user_condition": {
+                "role": "church_admin"
+              }
+            }
+          ]
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    }
+  }
+}

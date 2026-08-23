@@ -1,0 +1,74 @@
+{
+  "name": "PaymentMethod",
+  "type": "object",
+  "properties": {
+    "church_id": {
+      "type": "string"
+    },
+    "provider": {
+      "type": "string",
+      "enum": [
+        "stripe",
+        "paypal",
+        "cashapp",
+        "zelle",
+        "venmo",
+        "givelify",
+        "pushpay",
+        "custom"
+      ],
+      "description": "Payment provider"
+    },
+    "label": {
+      "type": "string",
+      "description": "Display name, e.g. 'Give via Cash App'"
+    },
+    "instructions": {
+      "type": "string",
+      "description": "Instructions shown to the member"
+    },
+    "link_url": {
+      "type": "string",
+      "description": "Payment link URL (for Stripe, PayPal, etc.)"
+    },
+    "handle": {
+      "type": "string",
+      "description": "Handle/username e.g. $cashtag, @venmo, phone for Zelle"
+    },
+    "qr_image_url": {
+      "type": "string",
+      "description": "Optional QR code image"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "sort_order": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "church_id",
+    "provider",
+    "label"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": null,
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "name": "PastoralMessage",
+  "type": "object",
+  "properties": {
+    "church_id": {
+      "type": "string",
+      "description": "ID of the church"
+    },
+    "church_name": {
+      "type": "string"
+    },
+    "sender_name": {
+      "type": "string"
+    },
+    "sender_email": {
+      "type": "string"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "body": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "replied",
+        "archived"
+      ],
+      "default": "new"
+    },
+    "reply_body": {
+      "type": "string",
+      "description": "Pastoral team's reply text"
+    },
+    "replied_by_name": {
+      "type": "string"
+    },
+    "replied_by_email": {
+      "type": "string"
+    },
+    "replied_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "church_admin_emails": {
+      "type": "array",
+      "description": "Church admin emails at time of creation (used for RLS access)",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "church_id",
+    "sender_name",
+    "body"
+  ],
+  "rls": {
+    "create": null,
+    "read": {
+      "$or": [
+        {
+          "data.sender_email": "{{user.email}}"
+        },
+        {
+          "data.church_admin_emails": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.church_admin_emails": {
+            "$in": [
+              "{{user.email}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

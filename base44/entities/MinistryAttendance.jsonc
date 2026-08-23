@@ -1,0 +1,130 @@
+{
+  "name": "MinistryAttendance",
+  "type": "object",
+  "properties": {
+    "schedule_id": {
+      "type": "string"
+    },
+    "group_id": {
+      "type": "string"
+    },
+    "church_id": {
+      "type": "string"
+    },
+    "member_id": {
+      "type": "string",
+      "description": "MinistryGroupMember id"
+    },
+    "member_name": {
+      "type": "string"
+    },
+    "member_email": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "present": {
+      "type": "boolean",
+      "default": false
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schedule_id",
+    "group_id",
+    "church_id",
+    "member_name"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "church_admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.church_id": "{{user.data.church_id}}"
+        },
+        {
+          "data.member_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.church_id": "{{user.data.church_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "church_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.church_id": "{{user.data.church_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "church_admin"
+          }
+        }
+      ]
+    }
+  }
+}

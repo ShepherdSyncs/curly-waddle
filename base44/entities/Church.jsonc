@@ -1,0 +1,237 @@
+{
+  "name": "Church",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the church"
+    },
+    "slug": {
+      "type": "string",
+      "description": "URL-friendly identifier for /c/slug routing"
+    },
+    "subdomain": {
+      "type": "string",
+      "description": "Custom subdomain for DNS CNAME routing (e.g. 'livinghope' \u2192 livinghope.shepherdsyncs.com)"
+    },
+    "church_code": {
+      "type": "string",
+      "description": "Unique short code for this church (e.g. BCC, LHP) used as prefix for member IDs"
+    },
+    "address": {
+      "type": "string",
+      "description": "Physical address"
+    },
+    "city": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "pastor_name": {
+      "type": "string"
+    },
+    "admin_email": {
+      "type": "string",
+      "description": "Primary church admin email (legacy)"
+    },
+    "admin_emails": {
+      "type": "array",
+      "description": "All church admin emails (supports multiple admins)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "trial",
+        "paused",
+        "suspended"
+      ],
+      "default": "active",
+      "description": "Church account status"
+    },
+    "subscription_tier": {
+      "type": "string",
+      "enum": [
+        "free",
+        "basic",
+        "growth",
+        "enterprise",
+        "global_admin_override"
+      ],
+      "default": "free",
+      "description": "Pricing tier for this church"
+    },
+    "subscription_status": {
+      "type": "string",
+      "enum": [
+        "none",
+        "trial",
+        "active",
+        "past_due",
+        "cancelled"
+      ],
+      "default": "none",
+      "description": "Subscription billing status"
+    },
+    "billing_cycle": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "yearly"
+      ],
+      "description": "Whether the church pays monthly or yearly"
+    },
+    "stripe_customer_id": {
+      "type": "string",
+      "description": "Stripe customer ID for this church"
+    },
+    "stripe_subscription_id": {
+      "type": "string",
+      "description": "Stripe subscription ID for the church's active subscription"
+    },
+    "trial_end_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the subscription trial ends (3-month trial for Basic/Growth)"
+    },
+    "subscription_started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the paid subscription started"
+    },
+    "trial_start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date the trial started"
+    },
+    "trial_days": {
+      "type": "number",
+      "default": 30,
+      "description": "Number of trial days allowed"
+    },
+    "logo_url": {
+      "type": "string"
+    },
+    "livestream_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the Live Stream feature is enabled for this church"
+    },
+    "online_giving_platform": {
+      "type": "string",
+      "enum": [
+        "planning_center",
+        "elvanto",
+        "elexio",
+        "churchcenter",
+        "pushpay",
+        "tithely",
+        "paypal",
+        "venmo",
+        "cash_app",
+        "custom"
+      ],
+      "description": "External giving platform the church uses"
+    },
+    "online_giving_url": {
+      "type": "string",
+      "description": "URL to the church's external giving page (Planning Center, Tithe.ly, etc.)"
+    },
+    "sms_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the church's own mass texting platform is enabled"
+    },
+    "sms_provider": {
+      "type": "string",
+      "enum": [
+        "twilio"
+      ],
+      "default": "twilio",
+      "description": "SMS provider the church has configured (uses the church's own API account)"
+    },
+    "twilio_account_sid": {
+      "type": "string",
+      "description": "Twilio Account SID (church's own account)"
+    },
+    "twilio_auth_token": {
+      "type": "string",
+      "description": "Twilio Auth Token (church's own account)"
+    },
+    "twilio_from_number": {
+      "type": "string",
+      "description": "Twilio phone number to send from (E.164 format, e.g. +12345678900)"
+    },
+    "ai_chat_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the AI visitor chat widget is enabled on the public page"
+    },
+    "ai_chat_description": {
+      "type": "string",
+      "description": "Church information the AI uses to answer visitor questions on the public page"
+    },
+    "documents": {
+      "type": "array",
+      "description": "Attached documents for this church",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "uploaded_at": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": null,
+    "update": {
+      "$or": [
+        {
+          "data.admin_email": "{{user.email}}"
+        },
+        {
+          "data.admin_emails": "{{user.email}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

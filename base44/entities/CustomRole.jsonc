@@ -1,0 +1,162 @@
+{
+  "name": "CustomRole",
+  "type": "object",
+  "properties": {
+    "church_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "description": "Custom role name e.g. 'SS Teacher', 'Nursery Volunteer'"
+    },
+    "description": {
+      "type": "string"
+    },
+    "color": {
+      "type": "string",
+      "default": "#6366f1"
+    },
+    "permissions": {
+      "type": "array",
+      "description": "List of permission keys granted to this role",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tracked_records": {
+      "type": "array",
+      "description": "Which record types this role can view/track",
+      "items": {
+        "type": "string"
+      }
+    },
+    "attendance_rooms": {
+      "type": "array",
+      "description": "Specific rooms/classes this role is allowed to take attendance in. Empty = all rooms.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "member_age_groups": {
+      "type": "array",
+      "description": "Which age groups of members this role can see. Empty = all.",
+      "items": {
+        "type": "string",
+        "enum": [
+          "infants",
+          "littles",
+          "young",
+          "adults"
+        ]
+      }
+    },
+    "assigned_user_emails": {
+      "type": "array",
+      "description": "Emails of users assigned this custom role",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "church_id",
+    "name"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "$and": [
+            {
+              "data.church_id": "{{user.data.church_id}}"
+            },
+            {
+              "user_condition": {
+                "role": "church_admin"
+              }
+            }
+          ]
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.church_id": "{{user.data.church_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "$and": [
+            {
+              "data.church_id": "{{user.data.church_id}}"
+            },
+            {
+              "user_condition": {
+                "role": "church_admin"
+              }
+            }
+          ]
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "$and": [
+            {
+              "data.church_id": "{{user.data.church_id}}"
+            },
+            {
+              "user_condition": {
+                "role": "church_admin"
+              }
+            }
+          ]
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    }
+  }
+}

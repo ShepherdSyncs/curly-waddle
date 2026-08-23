@@ -1,0 +1,151 @@
+{
+  "name": "BibleStudyGuide",
+  "type": "object",
+  "properties": {
+    "church_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "topic": {
+      "type": "string"
+    },
+    "scripture_references": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string",
+      "description": "Full guide content in markdown"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "Optional uploaded PDF or document"
+    },
+    "file_name": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "ai_generated",
+        "uploaded",
+        "manual"
+      ],
+      "default": "manual"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending",
+      "description": "Approval status - only approved guides are visible to users"
+    },
+    "approved_by": {
+      "type": "string"
+    },
+    "approved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "church_id",
+    "title",
+    "content"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "church_admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.church_id": "{{user.data.church_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.church_id": "{{user.data.church_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "church_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.church_id": "{{user.data.church_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "global_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "church_admin"
+          }
+        }
+      ]
+    }
+  }
+}

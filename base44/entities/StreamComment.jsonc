@@ -1,0 +1,67 @@
+{
+  "name": "StreamComment",
+  "type": "object",
+  "properties": {
+    "stream_id": {
+      "type": "string",
+      "description": "ID of the LiveStream"
+    },
+    "church_id": {
+      "type": "string"
+    },
+    "author_name": {
+      "type": "string"
+    },
+    "author_email": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string"
+    },
+    "is_approved": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "stream_id",
+    "church_id",
+    "content"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": null,
+    "update": {
+      "$or": [
+        {
+          "data.author_email": "{{user.email}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.author_email": "{{user.email}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

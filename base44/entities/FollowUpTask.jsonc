@@ -1,0 +1,131 @@
+{
+  "name": "FollowUpTask",
+  "type": "object",
+  "properties": {
+    "church_id": {
+      "type": "string"
+    },
+    "visitor_name": {
+      "type": "string"
+    },
+    "visitor_email": {
+      "type": "string"
+    },
+    "visitor_phone": {
+      "type": "string"
+    },
+    "member_id": {
+      "type": "string",
+      "description": "ChurchMember id if this task is for an inactive member"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "visitor",
+        "inactive_member"
+      ],
+      "default": "visitor",
+      "description": "Whether this is a new visitor follow-up or an inactive member follow-up"
+    },
+    "last_attended": {
+      "type": "string",
+      "format": "date",
+      "description": "Last attendance date (for inactive member tasks)"
+    },
+    "weeks_absent": {
+      "type": "number",
+      "description": "Number of weeks since last attendance"
+    },
+    "assigned_to_email": {
+      "type": "string"
+    },
+    "assigned_to_name": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed"
+      ],
+      "default": "pending"
+    },
+    "date_added": {
+      "type": "string",
+      "format": "date"
+    },
+    "added_by_name": {
+      "type": "string"
+    },
+    "added_by_email": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "church_id",
+    "visitor_name"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.assigned_to_email": "{{user.email}}"
+        },
+        {
+          "data.added_by_email": "{{user.email}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.assigned_to_email": "{{user.email}}"
+        },
+        {
+          "data.added_by_email": "{{user.email}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.assigned_to_email": "{{user.email}}"
+        },
+        {
+          "data.added_by_email": "{{user.email}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}
