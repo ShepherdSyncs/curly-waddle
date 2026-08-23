@@ -1,7 +1,8 @@
+import { supabase } from '../supabaseClient';
+
 let currentChurchId = null;
 let isGlobalAdmin = false;
 
-import { supabase } from '../supabaseClient';
 
 const entityTableMap = {
 Church: 'churches',
@@ -50,18 +51,6 @@ query = query.eq(key, value);
 }
 });
 }
-if (sortBy) {
-const desc = sortBy.startsWith('-');
-const col = desc? sortBy.substring(1): sortBy;
-query = query.order(col, { ascending:!desc });
-}
-if (limit) {
-query = query.limit(limit);
-}
-const { data, error } = await query;
-if (error) throw error;
-return data || [];
-},
 if (sortBy) {
 const desc = sortBy.startsWith('-');
 const col = desc? sortBy.substring(1): sortBy;
