@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { ThemeProvider } from '@/lib/ThemeContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Login from '@/pages/Login';
+import ChurchSelector from '@/components/ChurchSelector';
 
 import SubdomainApp from '@/components/SubdomainApp';
 import AppLayout from '@/components/layout/AppLayout';
@@ -93,7 +94,9 @@ return null;
 }
 }
 
-return (<Routes>
+return (<>
+<ChurchSelector />
+<Routes>
 <Route path="/login" element={<Login />} />
 <Route path="/c/:slug" element={<ChurchHome />} />
 <Route path="/c/:slug/:section" element={<ChurchSubpage />} />
@@ -135,7 +138,8 @@ return (<Routes>
 <Route path="/profile" element={<Profile />} />
 </Route>
 <Route path="*" element={<PageNotFound />} />
-</Routes>);
+</Routes>
+</>);
 };
 
 function App() {

@@ -1,3 +1,6 @@
+let currentChurchId = null;
+let isGlobalAdmin = false;
+
 import { supabase } from '../supabaseClient';
 
 const entityTableMap = {
@@ -39,11 +42,26 @@ async filter(filters, sortBy, limit) {
 let query = supabase.from(tableName).select('*');
 if (filters) {
 Object.entries(filters).forEach(([key, value]) => {
+if (key === 'church_id' && isGlobalAdmin && currentChurchId === 'all') {
+return;
+}
 if (value!== undefined && value!== null) {
 query = query.eq(key, value);
 }
 });
 }
+if (sortBy) {
+const desc = sortBy.startsWith('-');
+const col = desc? sortBy.substring(1): sortBy;
+query = query.order(col, { ascending:!desc });
+}
+if (limit) {
+query = query.limit(limit);
+}
+const { data, error } = await query;
+if (error) throw error;
+return data || [];
+},
 if (sortBy) {
 const desc = sortBy.startsWith('-');
 const col = desc? sortBy.substring(1): sortBy;
@@ -245,6 +263,10 @@ return channel;
 },
 };
 
+export function setSupabaseContext({ churchId, globalAdmin }) {
+currentChurchId = churchId;
+isGlobalAdmin = globalAdmin;
+}
 export const base44 = {
 entities,
 auth,
