@@ -162,4 +162,4 @@ return (<div style={{ maxWidth: '400px', margin: '80px auto', padding: '20px' }}
 </p>
 </div>);
 }
-export default Login;
+
