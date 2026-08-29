@@ -21,6 +21,7 @@ import SMSConfigTab from '@/components/settings/SMSConfigTab';
 import FormIntegrationsTab from '@/components/settings/FormIntegrationsTab';
 import OnlineGivingConfig from '@/components/settings/OnlineGivingConfig';
 import AIChatConfig from '@/components/settings/AIChatConfig';
+import CustomDomainSettings from '@/components/settings/CustomDomainSettings';
 import CustomRoleBuilder from '@/components/settings/CustomRoleBuilder';
 import { Link } from 'react-router-dom';
 import { useTheme } from '@/lib/ThemeContext';
@@ -284,6 +285,7 @@ export default function Settings() {
           {isChurchAdmin && <TabsTrigger value="sms">Mass Texting</TabsTrigger>}
           {isChurchAdmin && <TabsTrigger value="forms">Form Integrations</TabsTrigger>}
           {isChurchAdmin && <TabsTrigger value="custom-roles">Custom Roles</TabsTrigger>}
+{isChurchAdmin && <TabsTrigger value="domain">Custom Domain</TabsTrigger>}
         </TabsList>
 
         {/* My Profile Tab — visible to ALL users */}
@@ -445,6 +447,11 @@ export default function Settings() {
 
       {/* AI Visitor Chat Config — church admin only */}
       {isChurchAdmin && activeChurch && <AIChatConfig church={activeChurch} onSave={(data) => base44.entities.Church.update(activeChurch.id, data).then(() => queryClient.invalidateQueries({ queryKey: ['churches'] }))} />}
+
+{/* Custom Domain - church admin only */}
+{isChurchAdmin && activeChurch && <TabsContent value="domain" className="space-y-4 mt-4">
+<CustomDomainSettings church={activeChurch} />
+</TabsContent>}
 
       {/* Import Members — church admin only */}
       {isChurchAdmin && <Card>
