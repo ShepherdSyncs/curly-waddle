@@ -46,8 +46,6 @@ export default function Giving() {
   const { user, loading, isStaff, isChurchAdmin, isGlobalAdmin, hasPermission } = useAppUser();
   const churchId = user?.church_id;
 
-if (loading ||!user) return <div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div></div>;
-  const queryClient = useQueryClient();
   const isDeacon = user?.role === 'deacon' || isStaff;
 
   const [methodFormOpen, setMethodFormOpen] = useState(false);
@@ -137,6 +135,8 @@ if (loading ||!user) return <div className="flex items-center justify-center h-6
       toast.success('Giving record deleted');
     },
   });
+ if (loading ||!user) return <div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div></div>;
+
 
   const openEditRecord = (record) => {
     setEditRecord(record);
