@@ -43,8 +43,10 @@ const TYPE_COLORS = {
 const emptyMethodForm = { provider: 'cashapp', label: '', instructions: '', link_url: '', handle: '', qr_image_url: '', sort_order: 0 };
 
 export default function Giving() {
-  const { user, isStaff, isChurchAdmin, isGlobalAdmin, hasPermission } = useAppUser();
+  const { user, loading, isStaff, isChurchAdmin, isGlobalAdmin, hasPermission } = useAppUser();
   const churchId = user?.church_id;
+
+if (loading ||!user) return <div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div></div>;
   const queryClient = useQueryClient();
   const isDeacon = user?.role === 'deacon' || isStaff;
 
@@ -64,7 +66,7 @@ export default function Giving() {
   // For regular members: find their own ChurchMember record to link giving history
   const { data: myMemberRecord } = useQuery({
     queryKey: ['my-member-record', churchId, user?.email],
-    queryFn: () => base44.entities.ChurchMember.filter({ church_id: churchId, email: user.email }),
+    queryFn: () => base44.entities.ChurchMember.filter({ church_id: churchId, email: user?.email }),
     enabled: isRegularMember && !!user?.email,
     select: (data) => data[0] || null,
   });
@@ -225,7 +227,7 @@ export default function Giving() {
         {/* GIVE NOW — member view */}
         <TabsContent value="give" className="space-y-4 mt-4">
           {paymentMethods.length === 0 ? (
-            <Card><CardContent className="py-10 text-center text-muted-foreground">No payment methods configured yet. Contact your church admin.</CardContent></Card>
+            <Card><CardContent className="py-10 text-center text-muted-foreground">Your Church has not setup online giving yet. Please contact your church admin for more ways to give. Thank You for Giving to the Kingdom. ShepherdSyncs Team</CardContent></Card>
           ) : (
             <div className="grid sm:grid-cols-2 gap-4">
               {paymentMethods.map(method => {
