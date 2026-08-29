@@ -57,6 +57,7 @@ export default function Settings() {
   const queryClient = useQueryClient();
   const [email, setEmail] = useState('');
   const [inviteName, setInviteName] = useState('');
+const [selectedDomainChurchId, setSelectedDomainChurchId] = useState(null);
   const [inviteRole, setInviteRole] = useState('user');
   const [invitePermissions, setInvitePermissions] = useState(['manage_members']);
   const [inviting, setInviting] = useState(false);
@@ -285,7 +286,7 @@ export default function Settings() {
           {isChurchAdmin && <TabsTrigger value="sms">Mass Texting</TabsTrigger>}
           {isChurchAdmin && <TabsTrigger value="forms">Form Integrations</TabsTrigger>}
           {isChurchAdmin && <TabsTrigger value="custom-roles">Custom Roles</TabsTrigger>}
-{isChurchAdmin && <TabsTrigger value="domain">Custom Domain</TabsTrigger>}
+{(isChurchAdmin || isGlobalAdmin) && <TabsTrigger value="domain">Custom Domain</TabsTrigger>}
         </TabsList>
 
         {/* My Profile Tab — visible to ALL users */}
@@ -448,9 +449,19 @@ export default function Settings() {
       {/* AI Visitor Chat Config — church admin only */}
       {isChurchAdmin && activeChurch && <AIChatConfig church={activeChurch} onSave={(data) => base44.entities.Church.update(activeChurch.id, data).then(() => queryClient.invalidateQueries({ queryKey: ['churches'] }))} />}
 
-{/* Custom Domain - church admin only */}
-{isChurchAdmin && activeChurch && <TabsContent value="domain" className="space-y-4 mt-4">
-<CustomDomainSettings church={activeChurch} />
+{(isChurchAdmin || isGlobalAdmin) && <TabsContent value="domain" className="space-y-4 mt-4">
+{activeChurch? (<CustomDomainSettings church={activeChurch} />): isGlobalAdmin && myChurches?.length > 0? (<div className="space-y-4">
+<p className="text-sm text-muted-foreground">Select a church to configure its domain:</p>
+<select
+className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+value={selectedDomainChurchId || ''}
+onChange={(e) => setSelectedDomainChurchId(e.target.value)}
+>
+<option value="">Choose a church...</option>
+{myChurches.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+</select>
+{selectedDomainChurchId && <CustomDomainSettings church={myChurches.find(c => c.id === selectedDomainChurchId)} />}
+</div>): (<p className="text-sm text-muted-foreground">No church selected</p>)}
 </TabsContent>}
 
       {/* Import Members — church admin only */}

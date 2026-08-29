@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -30,6 +30,9 @@ export default function DeleteChurchDialog({ church, onConfirm, onClose }) {
             <AlertTriangle className="w-5 h-5" />
             Delete Church
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            Permanently delete {church.name} after entering the global admin PIN.
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 mt-2">
           <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">

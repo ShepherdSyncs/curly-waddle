@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Church, MapPin, Phone, Mail, Pause, Play, Clock, Paperclip, Trash2, Link, Copy, Users as UsersIcon, Radio, HandCoins, CreditCard } from 'lucide-react';
 import DocumentAttachments from '@/components/DocumentAttachments';
@@ -37,7 +37,7 @@ export default function Churches() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [selectedChurch, setSelectedChurch] = useState(null);
   const [overrideChurch, setOverrideChurch] = useState(null);
-  const [form, setForm] = useState({ name: '', address: '', city: '', state: '', phone: '', email: '', pastor_name: '', admin_email: '', subdomain: '' });
+  const [form, setForm] = useState({ name: '', address: '', city: '', state: '', phone: '', email: '', pastor_name: '', admin_email: '', subdomain: '', custom_domain: '' });
   const queryClient = useQueryClient();
 
   const { data: churches = [], isLoading } = useQuery({
@@ -65,7 +65,7 @@ export default function Churches() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['churches'] });
       setOpen(false);
-      setForm({ name: '', address: '', city: '', state: '', phone: '', email: '', pastor_name: '', admin_email: '', subdomain: '' });
+      setForm({ name: '', address: '', city: '', state: '', phone: '', email: '', pastor_name: '', admin_email: '', subdomain: '', custom_domain: '' });
       toast.success('Church created successfully');
     },
   });
@@ -103,6 +103,7 @@ export default function Churches() {
     email: editChurch.email,
     pastor_name: editChurch.pastor_name,
     admin_email: editChurch.admin_email,
+    custom_domain: editChurch.custom_domain || '',
     online_giving_platform: editChurch.online_giving_platform || null,
     online_giving_url: editChurch.online_giving_url || '',
   });
@@ -155,7 +156,7 @@ export default function Churches() {
             <Button><Plus className="w-4 h-4 mr-2" /> Add Church</Button>
           </DialogTrigger>
           <DialogContent className="max-w-md">
-            <DialogHeader><DialogTitle>Add New Church</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>Add New Church</DialogTitle><DialogDescription className="sr-only">Enter information to create a new church.</DialogDescription></DialogHeader>
             <div className="space-y-4 mt-4">
               <div><Label>Church Name *</Label><Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Enter church name" /></div>
               <div><Label>Pastor Name</Label><Input value={form.pastor_name} onChange={e => setForm({ ...form, pastor_name: e.target.value })} placeholder="Pastor name" /></div>
@@ -166,24 +167,33 @@ export default function Churches() {
               <div><Label>Address</Label><Input value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} /></div>
               <div><Label>Phone</Label><Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} /></div>
               <div><Label>Email</Label><Input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} /></div>
-              <div><Label>Church Admin Email</Label><Input value={form.admin_email} onChange={e => setForm({ ...form, admin_email: e.target.value })} placeholder="admin@example.com" /></div>
-              <div>
-                <Label>Custom Subdomain (DNS)</Label>
-                <div className="flex items-center mt-1">
-                  <Input
-                    value={form.subdomain}
-                    onChange={e => setForm({ ...form, subdomain: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
-                    placeholder="livinghope"
-                  />
-                  <span className="text-xs text-muted-foreground bg-muted border border-l-0 rounded-r-md px-2 h-9 flex items-center whitespace-nowrap">.shepherdsyncs.com</span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">Set your DNS CNAME record from this subdomain to the app.</p>
-              </div>
-              <Button className="w-full" onClick={() => createMutation.mutate(form)} disabled={!form.name || createMutation.isPending}>
-                {createMutation.isPending ? 'Creating...' : 'Create Church'}
-              </Button>
-            </div>
-          </DialogContent>
+ <div><Label>Church Admin Email</Label><Input value={form.admin_email} onChange={e => setForm({...form, admin_email: e.target.value })} placeholder="admin@example.com" /></div>
+ <div>
+ <Label>Custom Subdomain (DNS)</Label>
+ <div className="flex items-center mt-1">
+ <Input
+ value={form.subdomain}
+ onChange={e => setForm({...form, subdomain: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
+ placeholder="livinghope"
+ />
+ <span className="text-xs text-muted-foreground bg-muted border border-l-0 rounded-r-md px-2 h-9 flex items-center whitespace-nowrap">.shepherdsyncs.com</span>
+ </div>
+ <p className="text-xs text-muted-foreground mt-1">Set your DNS CNAME record from this subdomain to the app.</p>
+ </div>
+ <div>
+ <Label>Custom Domain (optional)</Label>
+ <Input
+ value={form.custom_domain}
+ onChange={e => setForm({...form, custom_domain: e.target.value.toLowerCase().replace(/[^a-z0-9.-]/g, '') })}
+ placeholder="giving.yourchurch.com"
+ />
+ <p className="text-xs text-muted-foreground mt-1">Your own domain replaces the subdomain. Both URLs will work.</p>
+</div>
+<Button className="w-full" onClick={() => createMutation.mutate(form)} disabled={!form.name || createMutation.isPending}>
+{createMutation.isPending? "Creating...": "Create Church"}
+</Button>
+</div>
+</DialogContent>
         </Dialog>
       </div>
 
@@ -416,7 +426,7 @@ export default function Churches() {
       {/* Edit Church Dialog */}
       <Dialog open={!!editChurch} onOpenChange={v => !v && setEditChurch(null)}>
         <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>Edit Church</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>Edit Church</DialogTitle><DialogDescription className="sr-only">Edit the church's information and settings.</DialogDescription></DialogHeader>
           {editChurch && (
             <div className="space-y-4 mt-4">
               <div><Label>Church Name *</Label><Input value={editChurch.name} onChange={e => setEditChurch({ ...editChurch, name: e.target.value })} /></div>
@@ -440,7 +450,16 @@ export default function Churches() {
                   <span className="text-xs text-muted-foreground bg-muted border border-l-0 rounded-r-md px-2 h-9 flex items-center whitespace-nowrap">.shepherdsyncs.com</span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">Set your DNS CNAME record from this subdomain to the app.</p>
-              </div>
+</div>
+<div>
+<Label>Custom Domain (optional)</Label>
+<Input
+value={editChurch.custom_domain || ''}
+onChange={e => setEditChurch({...editChurch, custom_domain: e.target.value.toLowerCase().replace(/[^a-z0-9.-]/g, '') })}
+placeholder="giving.yourchurch.com"
+/>
+<p className="text-xs text-muted-foreground mt-1">Your own domain. Both custom domain and subdomain will work.</p>
+</div>
 
               {/* Online Giving Platform */}
               <div className="border-t pt-3 space-y-3">
@@ -495,6 +514,9 @@ export default function Churches() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{docsChurch?.name} — Documents</DialogTitle>
+            <DialogDescription className="sr-only">
+              View and manage documents for {docsChurch?.name}.
+            </DialogDescription>
           </DialogHeader>
           {docsChurch && (
             <DocumentAttachments
@@ -521,6 +543,9 @@ export default function Churches() {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>{selectedChurch?.name}</DialogTitle>
+            <DialogDescription className="sr-only">
+              Copy the member signup link and review pending signups for {selectedChurch?.name}.
+            </DialogDescription>
           </DialogHeader>
           {selectedChurch && <ChurchSignupLinks church={selectedChurch} />}
         </DialogContent>
