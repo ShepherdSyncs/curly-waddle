@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { Bell, BellOff } from 'lucide-react';
+import { Bell, BellOff, Send } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -17,6 +17,7 @@ return arr;
 export default function PushNotificationManager() {
 const [subscribed, setSubscribed] = useState(false);
 const [loading, setLoading] = useState(false);
+const [testing, setTesting] = useState(false);
 const [supported, setSupported] = useState(true);
 
 useEffect(() => {
@@ -51,6 +52,23 @@ toast.success('Notifications enabled');
 setLoading(false);
 };
 
+const sendTest = async () => {
+setTesting(true);
+try {
+const { data: { session } } = await supabase.auth.getSession();
+if (!session) { toast.error('Not signed in'); setTesting(false); return; }
+const res = await fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/send-push', {
+method: 'POST',
+headers: { 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' },
+body: JSON.stringify({ userId: session.user.id, title: 'ShepherdSyncs', body: 'Test notification - push is working!', url: '/settings' })
+});
+const data = await res.json();
+if (data.success) toast.success('Notification sent to ' + data.sent + ' device(s)');
+else toast.error(data.error || data.message || 'Failed');
+} catch (err) { toast.error('Request failed'); }
+setTesting(false);
+};
+
 if (!supported) return null;
 
 return (<Card>
@@ -59,7 +77,10 @@ return (<Card>
 <CardDescription>Get reminders and updates sent to your device, even when you're not in the app.</CardDescription>
 </CardHeader>
 <CardContent>
-{subscribed? <p className="text-sm text-green-600">Notifications are enabled on this device.</p>: <Button onClick={subscribe} disabled={loading}>{loading? 'Enabling...': 'Enable Notifications'}</Button>}
+{subscribed? (<div className="space-y-2">
+<p className="text-sm text-green-600">Notifications are enabled on this device.</p>
+<Button variant="outline" size="sm" onClick={sendTest} disabled={testing} className="gap-1"><Send className="w-3 h-3" />{testing? 'Sending...': 'Send Test'}</Button>
+</div>): <Button onClick={subscribe} disabled={loading}>{loading? 'Enabling...': 'Enable Notifications'}</Button>}
 </CardContent>
 </Card>);
 }
