@@ -7,6 +7,8 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { ThemeProvider } from '@/lib/ThemeContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Login from '@/pages/Login';
+import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
 import ChurchSelector from '@/components/ChurchSelector';
 
 import SubdomainApp from '@/components/SubdomainApp';
@@ -98,6 +100,8 @@ return (<>
 <ChurchSelector />
 <Routes>
 <Route path="/login" element={<Login />} />
+<Route path="/forgot-password" element={<ForgotPassword />} />
+<Route path="/reset-password" element={<ResetPassword />} />
 <Route path="/c/:slug" element={<ChurchHome />} />
 <Route path="/c/:slug/:section" element={<ChurchSubpage />} />
 <Route path="/live" element={<PublicLiveStream />} />
