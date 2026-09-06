@@ -160,6 +160,7 @@ return (<div style={{ maxWidth: '400px', margin: '80px auto', padding: '20px' }}
 {isSignUp? 'Sign In': 'Create Account'}
 </button>
 </p>
+{!isSignUp && <p style={{ textAlign: "center", marginTop: "8px" }}><a href="/forgot-password" style={{ color: "#00B4D8", textDecoration: "none" }}>Forgot Password?</a></p>}
 </div>);
 }
 
