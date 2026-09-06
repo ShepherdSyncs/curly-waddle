@@ -29,7 +29,7 @@ navigator.serviceWorker.register('/sw.js').then(async (reg) => {
 setStatus('Service worker registered');
 const sub = await reg.pushManager.getSubscription();
 if (sub) { setSubscribed(true); setStatus('Already subscribed'); }
-else { setStatus('Ready - click to enable'); }
+else { setStatus('Ready'); }
 }).catch(err => setStatus('SW failed: ' + err.message));
 }, []);
 
@@ -74,6 +74,9 @@ else setError(JSON.stringify(data));
 setTesting(false);
 };
 
+const canEnable = status === 'Ready' || status === 'Already subscribed';
+const cantEnable = status.includes('Not supported') || status.includes('failed') || status.includes('denied') || status.includes('missing');
+
 return (<Card>
 <CardHeader>
 <div className="flex items-center gap-2"><Bell className="w-5 h-5 text-primary" /><CardTitle className="text-lg">Push Notifications</CardTitle></div>
@@ -82,7 +85,7 @@ return (<Card>
 <CardContent className="space-y-2">
 <p className="text-sm">{status}</p>
 {error && <p className="text-sm text-red-600">{error}</p>}
-{subscribed? (<Button variant="outline" size="sm" onClick={sendTest} disabled={testing}>{testing? 'Sending...': 'Send Test Notification'}</Button>): status.startsWith('Ready') || status.startsWith('Already')? null:!status.includes('Not supported') &&!status.includes('failed') &&!status.includes('denied') &&!status.includes('missing')? (<Button onClick={subscribe} size="sm">Enable Notifications</Button>): null}
+{subscribed? (<Button variant="outline" size="sm" onClick={sendTest} disabled={testing}>{testing? 'Sending...': 'Send Test Notification'}</Button>): canEnable? (<Button onClick={subscribe} size="sm">Enable Notifications</Button>): null}
 </CardContent>
 </Card>);
 }
