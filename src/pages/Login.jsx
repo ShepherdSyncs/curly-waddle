@@ -27,6 +27,17 @@ if (data) setChurchName(data.name);
 }
 }, []);
 
+useEffect(() => {
+document.documentElement.style.background = '#F8F9FA';
+document.body.style.background = '#F8F9FA';
+document.body.style.color = '#111827';
+return () => {
+document.documentElement.style.background = '';
+document.body.style.background = '';
+document.body.style.color = '';
+};
+}, []);
+
 if (isAuthenticated) {
 const redirect = searchParams.get('redirect') || '/';
 navigate(redirect);
@@ -80,7 +91,6 @@ churchId = churchMatch.id;
 if (churchId) {
 const { data: emailMatch } = await supabase.from('church_members').select('id, church_id, first_name, last_name, display_name').eq('email', email).eq('church_id', churchId).maybeSingle();
 matchedMember = emailMatch;
-
 if (!matchedMember && phone) {
 const cleanPhone = phone.replace(/\D/g, '');
 if (cleanPhone.length >= 7) {
@@ -91,7 +101,6 @@ matchedMember = phoneMatches?.find(m => m.phone && m.phone.replace(/\D/g, '') ==
 } else {
 const { data: emailMatch } = await supabase.from('church_members').select('id, church_id, first_name, last_name, display_name').eq('email', email).maybeSingle();
 matchedMember = emailMatch;
-
 if (!matchedMember && phone) {
 const cleanPhone = phone.replace(/\D/g, '');
 if (cleanPhone.length >= 7) {
@@ -99,82 +108,57 @@ const { data: phoneMatches } = await supabase.from('church_members').select('id,
 matchedMember = phoneMatches?.find(m => m.phone && m.phone.replace(/\D/g, '') === cleanPhone) || null;
 }
 }
-
-if (matchedMember) {
-churchId = matchedMember.church_id;
-}
+if (matchedMember) { churchId = matchedMember.church_id; }
 }
 
 if (matchedMember) {
-await supabase.from('users').insert({
-id: data.user.id,
-email: email,
-full_name: matchedMember.display_name || (matchedMember.first_name || '') + ' ' + (matchedMember.last_name || ''),
-church_id: matchedMember.church_id,
-role: 'church_member',
-status: 'active',
-});
+await supabase.from('users').insert({ id: data.user.id, email, full_name: matchedMember.display_name || (matchedMember.first_name || '') + ' ' + (matchedMember.last_name || ''), church_id: matchedMember.church_id, role: 'church_member', status: 'active' });
 await supabase.from('church_members').update({ user_id: data.user.id }).eq('id', matchedMember.id);
 setMessage('Account created and linked to your church.');
 } else if (churchId) {
-await supabase.from('users').insert({
-id: data.user.id,
-email: email,
-full_name: email.split('@')[0],
-church_id: churchId,
-role: 'church_member',
-status: 'pending',
-});
+await supabase.from('users').insert({ id: data.user.id, email, full_name: email.split('@')[0], church_id: churchId, role: 'church_member', status: 'pending' });
 setMessage('Account created and linked to your church. An admin will verify your membership.');
 } else {
-await supabase.from('users').insert({
-id: data.user.id,
-email: email,
-full_name: email.split('@')[0],
-role: 'church_member',
-status: 'pending',
-});
+await supabase.from('users').insert({ id: data.user.id, email, full_name: email.split('@')[0], role: 'church_member', status: 'pending' });
 setMessage('Account created. No church match found. A church admin will review your account.');
 }
 }
-} catch (err) {
-setError(err.message);
-} finally {
-setLoading(false);
-}
+} catch (err) { setError(err.message); } finally { setLoading(false); }
 };
 
 const welcomeText = churchName? 'Welcome to ' + churchName + ' Utilizing ShepherdSyncs': 'Welcome to ShepherdSyncs';
 
-return (<div style={{ maxWidth: '400px', margin: '80px auto', padding: '20px' }}>
-<img src="/logo.png" alt="ShepherdSyncs" style={{ display: 'block', margin: '0 auto 20px', height: '72px' }} />
-<h2 style={{ textAlign: 'center', marginBottom: '8px', fontSize: '20px', color: '#0D1B2A' }}>{welcomeText}</h2>
-<h3 style={{ textAlign: 'center', marginBottom: '24px', color: '#666', fontWeight: 'normal' }}>{isSignUp? 'Create Account': 'Sign In'}</h3>
-{error && <div style={{ background: '#fee', padding: '12px', borderRadius: '8px', marginBottom: '16px', color: '#c00' }}>{error}</div>}
-{message && <div style={{ background: '#efe', padding: '12px', borderRadius: '8px', marginBottom: '16px', color: '#060' }}>{message}</div>}
+return (<div style={{ minHeight: '100vh', background: '#F8F9FA', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+<div style={{ maxWidth: '440px', width: '100%', padding: '40px 32px', background: '#FFFFFF', borderRadius: '12px', boxShadow: '0 2px 16px rgba(0,0,0,0.08)', margin: '20px' }}>
+<img src="/logo.png" alt="ShepherdSyncs" style={{ display: 'block', margin: '0 auto 24px', height: '80px' }} />
+<h2 style={{ textAlign: 'center', marginBottom: '6px', fontSize: '22px', color: '#0D1B2A', fontWeight: '700' }}>{welcomeText}</h2>
+<h3 style={{ textAlign: 'center', marginBottom: '28px', color: '#6B7280', fontWeight: '400', fontSize: '16px' }}>{isSignUp? 'Create Account': 'Sign In'}</h3>
+{error && <div style={{ background: '#FEF2F2', padding: '12px', borderRadius: '8px', marginBottom: '16px', color: '#B91C1C', fontSize: '14px' }}>{error}</div>}
+{message && <div style={{ background: '#F0FDF4', padding: '12px', borderRadius: '8px', marginBottom: '16px', color: '#166534', fontSize: '14px' }}>{message}</div>}
 <form onSubmit={isSignUp? handleSignUp: handleLogin}>
 <div style={{ marginBottom: '16px' }}>
-<label style={{ display: 'block', marginBottom: '4px' }}>Email</label>
-<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+<label style={{ display: 'block', marginBottom: '6px', color: '#374151', fontSize: '14px', fontWeight: '500' }}>Email</label>
+<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', background: '#FFFFFF', color: '#111827', fontSize: '15px', boxSizing: 'border-box' }} />
 </div>
 <div style={{ marginBottom: '16px' }}>
-<label style={{ display: 'block', marginBottom: '4px' }}>Password</label>
-<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+<label style={{ display: 'block', marginBottom: '6px', color: '#374151', fontSize: '14px', fontWeight: '500' }}>Password</label>
+<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', background: '#FFFFFF', color: '#111827', fontSize: '15px', boxSizing: 'border-box' }} />
 </div>
 {isSignUp && (<div style={{ marginBottom: '16px' }}>
-<label style={{ display: 'block', marginBottom: '4px' }}>Phone (optional)</label>
-<input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(555) 123-4567" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+<label style={{ display: 'block', marginBottom: '6px', color: '#374151', fontSize: '14px', fontWeight: '500' }}>Phone (optional)</label>
+<input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(555) 123-4567" style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #D1D5DB', background: '#FFFFFF', color: '#111827', fontSize: '15px', boxSizing: 'border-box' }} />
 </div>)}
-<button type="submit" disabled={loading} style={{ width: '100%', padding: '10px', background: '#00B4D8', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' }}>
+<button type="submit" disabled={loading} style={{ width: '100%', padding: '11px', background: '#00B4D8', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '600' }}>
 {loading? 'Please wait...': isSignUp? 'Create Account': 'Sign In'}
 </button>
 </form>
-<p style={{ textAlign: 'center', marginTop: '16px' }}>
+<p style={{ textAlign: 'center', marginTop: '20px', color: '#6B7280', fontSize: '14px' }}>
 {isSignUp? 'Already have an account?': "Don't have an account?"}{' '}
-<button onClick={() => { setIsSignUp(!isSignUp); setError(''); setMessage(''); }} style={{ background: 'none', border: 'none', color: '#00B4D8', cursor: 'pointer', textDecoration: 'underline' }}>
+<button onClick={() => { setIsSignUp(!isSignUp); setError(''); setMessage(''); }} style={{ background: 'none', border: 'none', color: '#00B4D8', cursor: 'pointer', fontWeight: '500', padding: 0 }}>
 {isSignUp? 'Sign In': 'Create Account'}
 </button>
 </p>
-{!isSignUp && <p style={{ textAlign: "center", marginTop: "8px" }}><a href="/forgot-password" style={{ color: "#00B4D8", textDecoration: "none" }}>Forgot Password?</a></p>}
+{!isSignUp && <p style={{ textAlign: 'center', marginTop: '8px', fontSize: '14px' }}><a href="/forgot-password" style={{ color: '#00B4D8', textDecoration: 'none' }}>Forgot Password?</a></p>}
+</div>
 </div>);
 }
