@@ -147,7 +147,7 @@ setLoading(false);
 const welcomeText = churchName? 'Welcome to ' + churchName + ' Utilizing ShepherdSyncs': 'Welcome to ShepherdSyncs';
 
 return (<div style={{ maxWidth: '400px', margin: '80px auto', padding: '20px' }}>
-<img src="/logo.svg" alt="ShepherdSyncs" style={{ display: 'block', margin: '0 auto 20px', height: '72px' }} />
+<img src="/logo.png" alt="ShepherdSyncs" style={{ display: 'block', margin: '0 auto 20px', height: '72px' }} />
 <h2 style={{ textAlign: 'center', marginBottom: '8px', fontSize: '20px', color: '#0D1B2A' }}>{welcomeText}</h2>
 <h3 style={{ textAlign: 'center', marginBottom: '24px', color: '#666', fontWeight: 'normal' }}>{isSignUp? 'Create Account': 'Sign In'}</h3>
 {error && <div style={{ background: '#fee', padding: '12px', borderRadius: '8px', marginBottom: '16px', color: '#c00' }}>{error}</div>}
