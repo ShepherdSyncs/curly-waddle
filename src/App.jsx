@@ -67,7 +67,7 @@ if (hostname.endsWith('.shepherdsyncs.com')) return true;
 return false;
 }
 
-const PUBLIC_PATHS = ['/live', '/give', '/pray', '/portal', '/signup', '/kiosk', '/event-signup', '/login'];
+const PUBLIC_PATHS = ['/live', '/give', '/pray', '/portal', '/signup', '/kiosk', '/event-signup', '/login', '/forgot-password', '/reset-password'];
 
 const AuthenticatedApp = () => {
 const { isLoadingAuth, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
