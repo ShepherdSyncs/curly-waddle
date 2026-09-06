@@ -40,6 +40,8 @@ const entityTableMap = {
   CustomRole: 'custom_roles',
   FormIntegration: 'form_integrations',
   ChurchSmsCredential: 'church_sms_credentials',
+AdminLockout: "admin_lockout",
+ChurchAccessCode: "church_access_codes",
 };
 
 function createEntityHandler(tableName) {
