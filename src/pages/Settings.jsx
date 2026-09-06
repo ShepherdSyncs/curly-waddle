@@ -9,19 +9,19 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserPlus, Shield, Users, Building2, Plus, Cake, Send, Trash2, User, Bell, Upload, Monitor, Sun, Moon, Settings2, AlertTriangle, HandCoins } from 'lucide-react';
+import { UserPlus, Users, Building2, Plus, Cake, Send, Trash2, User, Bell, Upload, Monitor, Sun, Moon, Settings2, AlertTriangle, HandCoins } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import ImportMembersDialog from '@/components/members/ImportMembersDialog';
 import RolePermissionsChecklist from '@/components/settings/RolePermissionsChecklist';
 import UserPermissionsDialog, { EXTRA_PERMISSIONS } from '@/components/settings/UserPermissionsDialog';
-import { Checkbox } from '@/components/ui/checkbox';
 import SMSConfigTab from '@/components/settings/SMSConfigTab';
 import FormIntegrationsTab from '@/components/settings/FormIntegrationsTab';
 import OnlineGivingConfig from '@/components/settings/OnlineGivingConfig';
 import AIChatConfig from '@/components/settings/AIChatConfig';
 import CustomDomainSettings from '@/components/settings/CustomDomainSettings';
+import SupportAccessManager from "@/components/settings/SupportAccessManager";
+import ChurchAccessCodeDisplay from "@/components/settings/ChurchAccessCodeDisplay";
 import CustomRoleBuilder from '@/components/settings/CustomRoleBuilder';
 import { Link } from 'react-router-dom';
 import { useTheme } from '@/lib/ThemeContext';
@@ -287,6 +287,7 @@ const [selectedDomainChurchId, setSelectedDomainChurchId] = useState(null);
           {isChurchAdmin && <TabsTrigger value="forms">Form Integrations</TabsTrigger>}
           {isChurchAdmin && <TabsTrigger value="custom-roles">Custom Roles</TabsTrigger>}
 {(isChurchAdmin || isGlobalAdmin) && <TabsTrigger value="domain">Custom Domain</TabsTrigger>}
+{isGlobalAdmin && <TabsTrigger value="support">Support Access</TabsTrigger>}
         </TabsList>
 
         {/* My Profile Tab — visible to ALL users */}
@@ -464,6 +465,9 @@ onChange={(e) => setSelectedDomainChurchId(e.target.value)}
 </div>): (<p className="text-sm text-muted-foreground">No church selected</p>)}
 </TabsContent>}
 
+{isGlobalAdmin && <TabsContent value="support" className="space-y-4 mt-4">
+<SupportAccessManager />
+</TabsContent>}
       {/* Import Members — church admin only */}
       {isChurchAdmin && <Card>
         <CardHeader>
@@ -822,6 +826,7 @@ onChange={(e) => setSelectedDomainChurchId(e.target.value)}
             </TableBody>
           </Table>
         </div>
+{isChurchAdmin && <ChurchAccessCodeDisplay />}
       </Card>
 
         </TabsContent>}
