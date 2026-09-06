@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../lib/AuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -11,9 +11,21 @@ const [isSignUp, setIsSignUp] = useState(false);
 const [loading, setLoading] = useState(false);
 const [error, setError] = useState('');
 const [message, setMessage] = useState('');
+const [churchName, setChurchName] = useState(null);
 const { isAuthenticated } = useAuth();
 const navigate = useNavigate();
 const [searchParams] = useSearchParams();
+
+useEffect(() => {
+const hostname = window.location.hostname;
+const mains = ['shepherdsyncs.com', 'app.shepherdsyncs.com', 'admin.shepherdsyncs.com', 'www.shepherdsyncs.com', 'localhost', 'curly-waddle-alpha.vercel.app'];
+if (!mains.includes(hostname) && hostname.endsWith('.shepherdsyncs.com')) {
+const sub = hostname.split('.')[0].toLowerCase();
+supabase.from('churches').select('name').eq('subdomain', sub).maybeSingle().then(({ data }) => {
+if (data) setChurchName(data.name);
+});
+}
+}, []);
 
 if (isAuthenticated) {
 const redirect = searchParams.get('redirect') || '/';
@@ -132,9 +144,12 @@ setLoading(false);
 }
 };
 
+const welcomeText = churchName? 'Welcome to ' + churchName + ' Utilizing ShepherdSyncs': 'Welcome to ShepherdSyncs';
+
 return (<div style={{ maxWidth: '400px', margin: '80px auto', padding: '20px' }}>
-<h2 style={{ textAlign: 'center', marginBottom: '24px' }}>ShepherdSyncs</h2>
-<h3 style={{ textAlign: 'center', marginBottom: '24px' }}>{isSignUp? 'Create Account': 'Sign In'}</h3>
+<img src="/logo.svg" alt="ShepherdSyncs" style={{ display: 'block', margin: '0 auto 20px', height: '72px' }} />
+<h2 style={{ textAlign: 'center', marginBottom: '8px', fontSize: '20px', color: '#0D1B2A' }}>{welcomeText}</h2>
+<h3 style={{ textAlign: 'center', marginBottom: '24px', color: '#666', fontWeight: 'normal' }}>{isSignUp? 'Create Account': 'Sign In'}</h3>
 {error && <div style={{ background: '#fee', padding: '12px', borderRadius: '8px', marginBottom: '16px', color: '#c00' }}>{error}</div>}
 {message && <div style={{ background: '#efe', padding: '12px', borderRadius: '8px', marginBottom: '16px', color: '#060' }}>{message}</div>}
 <form onSubmit={isSignUp? handleSignUp: handleLogin}>
@@ -163,4 +178,3 @@ return (<div style={{ maxWidth: '400px', margin: '80px auto', padding: '20px' }}
 {!isSignUp && <p style={{ textAlign: "center", marginTop: "8px" }}><a href="/forgot-password" style={{ color: "#00B4D8", textDecoration: "none" }}>Forgot Password?</a></p>}
 </div>);
 }
-
