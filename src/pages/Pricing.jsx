@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from '@/supabaseClient';
 import { base44 } from '@/api/base44Client';
 import useAppUser from '@/hooks/useAppUser';
 import { Button } from '@/components/ui/button';
@@ -69,15 +70,21 @@ export default function Pricing() {
     setSelecting(tierId);
     try {
       if (tierId === 'free') {
-        await base44.functions.invoke('updateChurchTier', { churchId, tier: tierId, billingCycle });
+        await supabase.from('churches').update({ subscription_tier: tierId }).eq('id', churchId);
         await queryClient.invalidateQueries({ queryKey: ['churches'] });
         await queryClient.invalidateQueries({ queryKey: ['member-count-pricing'] });
         toast.success(`Plan updated to ${getTierConfig(tierId).name}`);
         setTimeout(() => window.location.reload(), 800);
       } else {
-        const res = await base44.functions.invoke('createCheckoutSession', { churchId, tier: tierId, billingCycle, paymentMethod });
-        const checkoutUrl = res?.data?.url;
-        if (!checkoutUrl) throw new Error('No checkout URL returned');
+        const { data: { session } } = await supabase.auth.getSession();
+ const res = await fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/create-checkout', {
+ method: 'POST',
+ headers: { 'Content-Type': 'application/json',...(session? { 'Authorization': 'Bearer ' + session.access_token }: {}) },
+ body: JSON.stringify({ churchId, tier: tierId, billingCycle }),
+ });
+ const data = await res.json();
+ if (!res.ok) throw new Error(data.error || 'Failed to start checkout');
+ const checkoutUrl = data.url;
         // Stripe Checkout can't load inside the preview iframe — redirect the published app instead
         if (window.self !== window.top) {
           setShowIframeNotice(true);
