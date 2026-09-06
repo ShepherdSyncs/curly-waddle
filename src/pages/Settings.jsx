@@ -21,6 +21,7 @@ import OnlineGivingConfig from '@/components/settings/OnlineGivingConfig';
 import AIChatConfig from '@/components/settings/AIChatConfig';
 import CustomDomainSettings from '@/components/settings/CustomDomainSettings';
 import SupportAccessManager from "@/components/settings/SupportAccessManager";
+import PushNotificationManager from "@/components/settings/PushNotificationManager";
 import ChurchAccessCodeDisplay from "@/components/settings/ChurchAccessCodeDisplay";
 import CustomRoleBuilder from '@/components/settings/CustomRoleBuilder';
 import { Link } from 'react-router-dom';
@@ -293,6 +294,7 @@ const [selectedDomainChurchId, setSelectedDomainChurchId] = useState(null);
         {/* My Profile Tab — visible to ALL users */}
         <TabsContent value="profile" className="space-y-4">
 
+<PushNotificationManager />
           {/* Appearance */}
           <Card>
             <CardHeader>
