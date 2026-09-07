@@ -65,7 +65,18 @@ export const TIERS = {
     ],
     notIncluded: [],
   },
-  enterprise: {
+  beta: {
+ id: 'beta',
+ name: 'Beta',
+ price: 0,
+ memberLimit: -1,
+ memberBuffer: 0,
+ liveStreamDestinations: -1,
+ features: { fullChat: true, massTexting: true, liveStreamSocial: true },
+ featuresList: ['All features unlocked', '6 months free', 'Required monthly feedback'],
+ notIncluded: [],
+ },
+ enterprise: {
     id: 'enterprise',
     name: 'Enterprise',
     price: null,
