@@ -102,7 +102,7 @@ export const TIERS = {
   },
 };
 
-export const TRIAL_DAYS = 90;
+export const TRIAL_DAYS = 30;
 
 export function getTierConfig(tier) {
   return TIERS[tier] || TIERS.free;
