@@ -133,12 +133,7 @@ const [selectedDomainChurchId, setSelectedDomainChurchId] = useState(null);
       });
       // If a pastor email is provided, send welcome email + invite them as church_admin
       if (pastorEmail && church?.id) {
-        await base44.functions.invoke('welcomeChurchAdmin', {
-          churchId: church.id,
-          pastorEmail,
-          pastorName: data.pastor_name || '',
-          churchName: data.name,
-        });
+        await fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/welcome-church-admin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ churchId: church.id, pastorEmail, pastorName: data.pastor_name || '', churchName: data.name }) });
       }
       return church;
     },
@@ -224,17 +219,11 @@ const [selectedDomainChurchId, setSelectedDomainChurchId] = useState(null);
     if (!email || !inviteName) { toast.error('Enter a name and email'); return; }
     setInviting(true);
     try {
-      const res = await base44.functions.invoke('inviteChurchUser', {
-        email,
-        inviteName,
-        role: inviteRole,
-        churchId: user?.church_id,
-        churchName: activeChurch?.name || '',
-        extraPermissions: invitePermissions,
-      });
+      const res = await fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/invite-church-user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, inviteName, role: inviteRole, churchId: user?.church_id, churchName: activeChurch?.name || '' }) });
+ const data = await res.json();
       if (res.data?.error) {
         toast.error(res.data.error);
-      } else if (res.data?.email_sent === false) {
+      } else if (data?.email_sent === false) {
         toast.success(`Invited ${inviteName} — a default invitation email was sent to ${email}. Set their role below once they register.`);
         setEmail('');
         setInviteName('');
