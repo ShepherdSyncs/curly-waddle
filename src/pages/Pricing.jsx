@@ -175,7 +175,7 @@ export default function Pricing() {
                   {tier.price !== null ? (
                     tierId === 'growth' && growthYearly ? (
                       <>
-                        <span className="text-3xl font-bold">${tier.price * 10}</span>
+                        <span className="text-3xl font-bold">330</span>
                         <span className="text-sm text-muted-foreground">/yr</span>
                       </>
                     ) : (
@@ -195,7 +195,7 @@ export default function Pricing() {
                   <div className="flex items-center gap-2 mt-3 p-2 rounded-lg bg-primary/5 border border-primary/15">
                     <Switch id="growth-yearly" checked={growthYearly} onCheckedChange={setGrowthYearly} />
                     <Label htmlFor="growth-yearly" className="text-xs font-medium leading-snug cursor-pointer">
-                      Pay Yearly — Pay for 10 months and get 2 months free!
+                      Pay Yearly — Pay for 11 months, get the 12th free!
                     </Label>
                   </div>
                 )}
@@ -231,7 +231,7 @@ export default function Pricing() {
 
       {/* Trial info */}
       <div className="mt-8 text-center text-sm text-muted-foreground space-y-1">
-        <p>3-month free trial available for Basic and Growth tiers. No credit card required to start.</p>
+        <p>A 30-day free trial is available for Basic and Growth tiers. No credit card required to start.</p>
         <p>Visitors are always free and don't count toward your member limit.</p>
         <p>Questions? Contact <a href="mailto:info@shepherdsyncs.com" className="text-primary hover:underline">info@shepherdsyncs.com</a></p>
       </div>
