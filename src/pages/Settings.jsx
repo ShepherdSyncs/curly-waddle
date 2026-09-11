@@ -269,6 +269,7 @@ const [selectedDomainChurchId, setSelectedDomainChurchId] = useState(null);
           {isChurchAdmin && <TabsTrigger value="forms">Form Integrations</TabsTrigger>}
           {isChurchAdmin && <TabsTrigger value="custom-roles">Custom Roles</TabsTrigger>}
 {(isChurchAdmin || isGlobalAdmin) && <TabsTrigger value="domain">Custom Domain</TabsTrigger>}
+{isGlobalAdmin && <TabsTrigger value='beta'>Beta</TabsTrigger>}
 {isGlobalAdmin && <TabsTrigger value="support">Support Access</TabsTrigger>}
         </TabsList>
 
@@ -448,7 +449,10 @@ onChange={(e) => setSelectedDomainChurchId(e.target.value)}
 </div>): (<p className="text-sm text-muted-foreground">No church selected</p>)}
 </TabsContent>}
 
-{isGlobalAdmin && <TabsContent value="support" className="space-y-4 mt-4">
+{isGlobalAdmin && <TabsContent value='beta' className='space-y-6'>
+<BetaManager />
+</TabsContent>}
+{isGlobalAdmin && <TabsContent value='support' className='space-y-4 mt-4'>
 <SupportAccessManager />
 </TabsContent>}
       {/* Import Members — church admin only */}
@@ -816,8 +820,9 @@ onChange={(e) => setSelectedDomainChurchId(e.target.value)}
 
         {/* SMS / Mass Texting Config — Church Admins only */}
         {isChurchAdmin && activeChurch && (
-          <TabsContent value="sms" className="space-y-6">
-            <SMSConfigTab church={activeChurch} onSaved={() => queryClient.invalidateQueries({ queryKey: ['churches'] })} />
+          <TabsContent value='sms' className='space-y-6'>
+<TwilioConfig />
+<SMSConfigTab church={activeChurch} onSaved={() => queryClient.invalidateQueries({ queryKey: ['churches'] })} />
           </TabsContent>
         )}
 
