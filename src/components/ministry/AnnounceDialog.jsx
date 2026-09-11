@@ -41,7 +41,7 @@ export default function AnnounceDialog({ group, user, onClose }) {
         scheduled_for: scheduling ? data.scheduled_for : null,
       });
       if (data.send_email && !scheduling) {
-        await base44.functions.invoke('ministryMailer', { announcement_id: announcement.id });
+        await fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/ministry-mailer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ announcement_id: announcement.id }) });
       }
       return announcement;
     },
