@@ -2,26 +2,16 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Users, HandCoins, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import useAppUser from '@/hooks/useAppUser';
 
-const staffNav = [
-{ path: '/', label: 'Dashboard', icon: LayoutDashboard },
-{ path: '/members', label: 'Members', icon: Users },
-{ path: '/giving', label: 'Giving', icon: HandCoins },
-{ path: '/schedule', label: 'Schedule', icon: User },
-];
-
-const userNav = [
-{ path: '/my', label: 'My Church', icon: LayoutDashboard },
-{ path: '/events', label: 'Events', icon: Users },
-{ path: '/sermons', label: 'Sermons', icon: HandCoins },
-{ path: '/schedule', label: 'Schedule', icon: User },
+const NAV_ITEMS = [
+ { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+ { path: '/members', label: 'Members', icon: Users },
+ { path: '/giving', label: 'Giving', icon: HandCoins },
+ { path: '/schedule', label: 'Schedule', icon: User },
 ];
 
 export default function MobileNav() {
- const { user } = useAppUser();
- const isRegularUser = user?.role === 'user';
- const NAV_ITEMS = isRegularUser? userNav: staffNav;
+ const NAV_ITEMS = staffNav;
   const location = useLocation();
 
   return (
