@@ -10,7 +10,7 @@ import WelcomeDialog from '@/components/onboarding/WelcomeDialog';
 import TourDialog from '@/components/onboarding/TourDialog';
 import PastoralMessagesWidget from '@/components/pastoral/PastoralMessagesWidget';
 import UserMenu from './UserMenu';
-import { base44 } from '@/api/base44Client';
+import { supabase } from '@/supabaseClient';
 import { differenceInDays, addDays, parseISO } from 'date-fns';
 
 export default function AppLayout() {
@@ -40,10 +40,9 @@ export default function AppLayout() {
     const churchId = user.church_id;
     if (!churchId) return;
 
-    base44.entities.Church.filter({ id: churchId }).then(results => {
-      const church = results[0];
-      if (!church) return;
-      setChurchData(church);
+    supabase.from('churches').select('*').eq('id', churchId).maybeSingle().then(({ data: church }) => {
+ if (!church) return;
+ setChurchData(church);
       if (church.status !== 'trial' || !church.trial_start_date) return;
       const start = parseISO(church.trial_start_date);
       const days = church.trial_days || 3;
@@ -104,7 +103,7 @@ export default function AppLayout() {
 
       {/* Main content */}
       <main className="lg:ml-64 min-h-screen pt-14 lg:pt-14 flex flex-col">
-        <div className="flex-1 p-4 md:p-6 lg:p-8 pb-4 lg:pb-6">
+        <div className="flex-1 p-4 md:p-6 lg:p-8 pb-24 lg:pb-6">
           <Outlet />
         </div>
         <footer className="lg:block text-center text-xs text-muted-foreground py-4 px-6 border-t border-border hidden">
