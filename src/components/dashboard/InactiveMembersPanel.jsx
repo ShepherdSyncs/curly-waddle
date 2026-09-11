@@ -66,9 +66,10 @@ export default function InactiveMembersPanel({ churchId }) {
 
   const handleSendAlert = async () => {
     setSendingAlert(true);
-    const res = await base44.functions.invoke('fourWeekAbsenceAlert', {});
+    const res = await fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/four-week-absence-alert', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+ const data = await res.json();
     setSendingAlert(false);
-    const count = res.data?.total_alerted || 0;
+    const count = data?.total_alerted || 0;
     toast.success(count > 0 ? `Alert sent for ${count} member${count !== 1 ? 's' : ''}` : 'No members in 4-week window');
   };
 
@@ -82,9 +83,10 @@ export default function InactiveMembersPanel({ churchId }) {
 
   const handleRunScan = async () => {
     setRunning(true);
-    const res = await base44.functions.invoke('flagInactiveMembers', {});
+    const res = await fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/flag-inactive-members', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+ const data2 = await res.json();
     setRunning(false);
-    const count = res.data?.total_flagged || 0;
+    const count = data2?.total_flagged || 0;
     if (count > 0) {
       toast.success(`Flagged ${count} inactive member${count !== 1 ? 's' : ''}`);
       queryClient.invalidateQueries({ queryKey: ['inactive-tasks'] });
