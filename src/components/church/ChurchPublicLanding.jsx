@@ -1,3 +1,4 @@
+import { supabase } from '@/supabaseClient';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -114,8 +115,9 @@ export default function ChurchPublicLanding({ church, user }) {
     if (!user?.email || !church?.id) return;
     setDashboardLoading(true);
     try {
-      const [givingResult, attendance, groups, memberships, schedules, myMemberRecords] = await Promise.all([
-        base44.functions.invoke('getMyGivingRecords', {}),
+      const session = user? (await supabase.auth.getSession()).data.session: null;
+ const givingResult = session? await (await fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/get-my-giving-records', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token } }).then(r => r.json())).data: [];
+ const [attendance, groups, memberships, schedules, myMemberRecords] = await Promise.all([
         base44.entities.AttendanceRecord.filter({ church_id: church.id }, '-date', 200),
         base44.entities.MinistryGroup.filter({ church_id: church.id, is_active: true }),
         base44.entities.MinistryGroupMember.filter({ church_id: church.id, member_email: user.email }),
