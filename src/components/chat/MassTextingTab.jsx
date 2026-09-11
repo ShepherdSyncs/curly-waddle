@@ -92,12 +92,9 @@ export default function MassTextingTab() {
         phone: m.phone,
         name: `${m.first_name} ${m.last_name}`,
       }));
-      const res = await base44.functions.invoke('sendChurchSMS', {
-        churchId,
-        message: message.trim(),
-        recipients,
-      });
-      const data = res.data;
+      const res = await fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/send-church-sms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ churchId, message: message.trim(), recipients }) });
+ const data = await res.json();
+      // replaced above
       if (data?.error) {
         toast.error(data.error);
         setResults({ error: data.error });
