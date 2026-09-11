@@ -156,11 +156,7 @@ const [selectedDomainChurchId, setSelectedDomainChurchId] = useState(null);
           return emails.includes(userEmail);
         });
         for (const c of theirChurches) {
-          base44.functions.invoke('syncPastoralStaff', {
-            churchId: c.id,
-            adminEmail: userEmail,
-            adminName: userName || userEmail,
-          }).catch(() => {});
+          fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/sync-pastoral-staff', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ churchId: c.id, adminEmail: userEmail, adminName: userName || userEmail }) }).catch(() => {});
         }
       }
     },
@@ -185,11 +181,7 @@ const [selectedDomainChurchId, setSelectedDomainChurchId] = useState(null);
       await base44.entities.Church.update(churchId, { admin_emails: updatedEmails });
       // Sync to Pastoral Staff on add
       if (action === 'add') {
-        base44.functions.invoke('syncPastoralStaff', {
-          churchId,
-          adminEmail: userEmail,
-          adminName: userName || userEmail,
-        }).catch(() => {});
+        fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/sync-pastoral-staff', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ churchId, adminEmail: userEmail, adminName: userName || userEmail }) }).catch(() => {});
       }
     },
     onSuccess: () => {
@@ -520,7 +512,7 @@ onChange={(e) => setSelectedDomainChurchId(e.target.value)}
               className="gap-2"
               onClick={async () => {
                 toast.loading('Sending reminders now…', { id: 'ministry-reminder' });
-                const res = await base44.functions.invoke('ministryReminderSweep', {});
+                const res = await fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/ministry-reminder-sweep', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
                 toast.dismiss('ministry-reminder');
                 const total = res.data?.total_emails_sent ?? 0;
                 const checked = res.data?.checked ?? 0;
@@ -556,7 +548,7 @@ onChange={(e) => setSelectedDomainChurchId(e.target.value)}
               className="gap-2"
               onClick={async () => {
                 toast.loading('Generating summary…', { id: 'att-summary' });
-                const res = await base44.functions.invoke('monthlyAttendanceSummary', {});
+                const res = await fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/monthly-attendance-summary', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
                 toast.dismiss('att-summary');
                 const total = res.data?.processed?.length ?? 0;
                 if (total === 0) {
@@ -591,9 +583,9 @@ onChange={(e) => setSelectedDomainChurchId(e.target.value)}
               className="gap-2"
               onClick={async () => {
                 toast.loading('Sending digest now…', { id: 'digest' });
-                const res = await base44.functions.invoke('weeklyBirthdayDigest', {});
+                const res = await fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/weekly-birthday-digest', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
                 toast.dismiss('digest');
-                const processed = res.data?.processed || [];
+                const data = await res.json(); const processed = data?.processed || [];
                 if (processed.length === 0) {
                   toast.info('No upcoming birthdays found across active churches.');
                 } else {
