@@ -74,12 +74,7 @@ export default function FollowUpTasksPanel({ churchId, isAdmin }) {
     });
 
     // Send assignment email
-    base44.functions.invoke('sendFollowUpAssignmentEmail', {
-      assignee_name: member.member_name,
-      assignee_email: member.member_email,
-      visitor_name: task.visitor_name,
-      church_id: churchId,
-    }).catch(() => {});
+    fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/send-followup-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ assignee_name: member.member_name, assignee_email: member.member_email, visitor_name: task.visitor_name, church_id: churchId }) }).catch(() => {});
   };
 
   const pendingTasks = tasks.filter(t => t.status !== 'completed');
