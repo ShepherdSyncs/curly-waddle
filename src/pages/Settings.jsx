@@ -821,6 +821,7 @@ onChange={(e) => setSelectedDomainChurchId(e.target.value)}
         {/* SMS / Mass Texting Config — Church Admins only */}
         {isChurchAdmin && activeChurch && (
           <TabsContent value='sms' className='space-y-6'>
+<PastorEmailConfig />
 <TwilioConfig />
 <SMSConfigTab church={activeChurch} onSaved={() => queryClient.invalidateQueries({ queryKey: ['churches'] })} />
           </TabsContent>
