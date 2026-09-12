@@ -153,6 +153,7 @@ return (<>
 </>);
 };
 
+// shepherd syncs app
 function App() {
 if (isSubdomain()) {
 return <SubdomainApp />;
