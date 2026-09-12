@@ -118,7 +118,7 @@ return null;
 
 return (<>
 <ChurchSelector />
-<Routes>
+<ErrorBoundary><Routes>
 <Route path="/login" element={<Login />} />
 <Route path="/forgot-password" element={<ForgotPassword />} />
 <Route path="/reset-password" element={<ResetPassword />} />
@@ -164,7 +164,7 @@ return (<>
 <Route path="/profile" element={<Profile />} />
 </Route>
 <Route path="*" element={<PageNotFound />} />
-</Routes>
+</Routes></ErrorBoundary>
 </>);
 };
 
