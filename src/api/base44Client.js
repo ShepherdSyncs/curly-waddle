@@ -111,7 +111,7 @@ function createEntityHandler(tableName) {
 
     subscribe(callback) {
       const channel = supabase.channel(tableName + '-changes').on('postgres_changes', { event: '*', schema: 'public', table: tableName }, callback).subscribe();
-      return channel;
+      return () => { supabase.removeChannel(channel); };
     },
   };
 }
