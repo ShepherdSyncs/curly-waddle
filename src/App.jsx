@@ -75,22 +75,10 @@ const PUBLIC_PATHS = ['/live', '/give', '/pray', '/portal', '/signup', '/kiosk',
 
 const AuthenticatedApp = () => {
 const { isLoadingAuth, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
-const [betaSuspended, setBetaSuspended] = useState(false);
 
-useEffect(() => {
-if (!authChecked ||!isAuthenticated) return;
-const check = async () => {
-const { data: { session } } = await supabase.auth.getSession();
-if (!session) return;
-const { data: u } = await supabase.from("users").select("church_id").eq("email", session.user.email).maybeSingle();
-if (!u?.church_id) return;
-const { data: ch } = await supabase.from("churches").select("subscription_tier, beta_suspended").eq("id", u.church_id).maybeSingle();
-if (ch?.subscription_tier === "beta" && ch?.beta_suspended) setBetaSuspended(true);
-};
-check();
-}, [authChecked, isAuthenticated]);
 
-if (betaSuspended) return <BetaSuspended />;
+
+
 
 if (isLoadingAuth) {
 return (<div className="fixed inset-0 flex items-center justify-center">
@@ -121,10 +109,7 @@ return (<>
 <ErrorBoundary><Routes>
 <Route path="/login" element={<Login />} />
 <Route path="/forgot-password" element={<ForgotPassword />} />
-<Route path="/reset-password" element={<ResetPassword />} />
- <Route path="/beta-feedback" element={<BetaFeedback />} />
- <Route path="/beta-suspended" element={<BetaSuspended />} />
-<Route path="/c/:slug" element={<ChurchHome />} />
+<Route path="/reset-password" element={<ResetPassword />} /><Route path="/c/:slug" element={<ChurchHome />} />
 <Route path="/c/:slug/:section" element={<ChurchSubpage />} />
 <Route path="/live" element={<PublicLiveStream />} />
 <Route path="/give" element={<PublicGiving />} />
