@@ -1,16 +1,5 @@
-constructor(p){super(p);this.state={err:null,stack:null}}
-static getDerivedStateFromError(e){return{err:e}}
-componentDidCatch(e,info){this.setState({stack:info.componentStack});console.error('CRASH:',e,info)}
-render(){
-if(!this.state.err) return this.props.children;
-return React.createElement('div',{style:{padding:32,maxWidth:900,margin:'0 auto',fontFamily:'monospace',fontSize:12,whiteSpace:'pre-wrap'}},
-React.createElement('p',null,String(this.state.err)),
-React.createElement('h3',{style:{fontFamily:'sans-serif',marginTop:24},'Component Stack:'),
-React.createElement('pre',{style:{background:'#fef2f2',padding:16,borderRadius:8,color:'#991b1b'}},this.state.stack||'none'),
-React.createElement('button',{onClick:()=>location.href='/',style:{marginTop:16,padding:'8px 16px',borderRadius:6,border:'none',background:'#2563eb',color:'#fff',cursor:pointer'}},'Back'));
 }
-}
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -24,8 +13,6 @@ import { supabase } from '@/supabaseClient';
 import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
 import ChurchSelector from '@/components/ChurchSelector';
-import BetaFeedback from '@/pages/BetaFeedback';
-import BetaSuspended from '@/pages/BetaSuspended';
 
 import SubdomainApp from '@/components/SubdomainApp';
 import AppLayout from '@/components/layout/AppLayout';
@@ -118,6 +105,7 @@ return null;
 
 return (<>
 <ChurchSelector />
+<Routes>
 <Route path="/login" element={<Login />} />
 <Route path="/forgot-password" element={<ForgotPassword />} />
 <Route path="/reset-password" element={<ResetPassword />} /><Route path="/c/:slug" element={<ChurchHome />} />
@@ -160,6 +148,7 @@ return (<>
 <Route path="/profile" element={<Profile />} />
 </Route>
 <Route path="*" element={<PageNotFound />} />
+</Routes>
 </>);
 };
 
