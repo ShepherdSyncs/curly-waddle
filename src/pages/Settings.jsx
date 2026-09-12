@@ -21,7 +21,6 @@ import OnlineGivingConfig from '@/components/settings/OnlineGivingConfig';
 import AIChatConfig from '@/components/settings/AIChatConfig';
 import CustomDomainSettings from '@/components/settings/CustomDomainSettings';
 import SupportAccessManager from "@/components/settings/SupportAccessManager";
-import BetaManager from "@/components/settings/BetaManager";
 import TwilioConfig from "@/components/settings/TwilioConfig";
 import PushNotificationManager from "@/components/settings/PushNotificationManager";
 import ChurchAccessCodeDisplay from "@/components/settings/ChurchAccessCodeDisplay";
@@ -271,7 +270,6 @@ const [selectedDomainChurchId, setSelectedDomainChurchId] = useState(null);
           {isChurchAdmin && <TabsTrigger value="forms">Form Integrations</TabsTrigger>}
           {isChurchAdmin && <TabsTrigger value="custom-roles">Custom Roles</TabsTrigger>}
 {(isChurchAdmin || isGlobalAdmin) && <TabsTrigger value="domain">Custom Domain</TabsTrigger>}
-{isGlobalAdmin && <TabsTrigger value='beta'>Beta</TabsTrigger>}
 {isGlobalAdmin && <TabsTrigger value="support">Support Access</TabsTrigger>}
         </TabsList>
 
@@ -451,9 +449,6 @@ onChange={(e) => setSelectedDomainChurchId(e.target.value)}
 </div>): (<p className="text-sm text-muted-foreground">No church selected</p>)}
 </TabsContent>}
 
-{isGlobalAdmin && <TabsContent value='beta' className='space-y-6'>
-<BetaManager />
-</TabsContent>}
 {isGlobalAdmin && <TabsContent value='support' className='space-y-4 mt-4'>
 <SupportAccessManager />
 </TabsContent>}
