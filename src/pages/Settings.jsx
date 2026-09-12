@@ -23,7 +23,6 @@ import CustomDomainSettings from '@/components/settings/CustomDomainSettings';
 import SupportAccessManager from "@/components/settings/SupportAccessManager";
 import BetaManager from "@/components/settings/BetaManager";
 import TwilioConfig from "@/components/settings/TwilioConfig";
-import PastorEmailConfig from "@/components/settings/PastorEmailConfig";
 import PushNotificationManager from "@/components/settings/PushNotificationManager";
 import ChurchAccessCodeDisplay from "@/components/settings/ChurchAccessCodeDisplay";
 import CustomRoleBuilder from '@/components/settings/CustomRoleBuilder';
@@ -824,9 +823,6 @@ onChange={(e) => setSelectedDomainChurchId(e.target.value)}
         {/* SMS / Mass Texting Config — Church Admins only */}
         {isChurchAdmin && activeChurch && (
           <TabsContent value='sms' className='space-y-6'>
-<PastorEmailConfig />
-<TwilioConfig />
-<PastorEmailConfig />
 <TwilioConfig />
 <SMSConfigTab church={activeChurch} onSaved={() => queryClient.invalidateQueries({ queryKey: ['churches'] })} />
           </TabsContent>
