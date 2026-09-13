@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/supabaseClient';
-import ChurchPublicLanding from '@/components/church/ChurchPublicLanding';\nimport { setDemoMode } from '@/api/base44Client';
+import ChurchPublicLanding from '@/components/church/ChurchPublicLanding';
 
 function toSlug(name) {
 return (name || '').toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
@@ -53,11 +53,11 @@ return (<div className="fixed inset-0 flex items-center justify-center bg-slate-
 </div>);
 }
 
-if (church && toSlug(church.name) === 'testchurch') {\n const DEMO_API = 'https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/demo-data';\n fetch(DEMO_API).then(r => r.json()).then(d => {\n const cache = {};\n if (d.church) cache.churches = [d.church];\n if (d.members) cache.church_members = d.members;\n if (d.attendance) cache.attendance_records = d.attendance;\n if (d.giving) cache.giving_records = d.giving;\n if (d.events) cache.church_events = d.events;\n if (d.groups) cache.ministry_groups = d.groups;\n if (d.spiritual) cache.spiritual_records = d.spiritual;\n setDemoMode(cache);\n window.location.href = '/';\n });\n return (<div className='fixed inset-0 flex items-center justify-center'><div className='w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin' /></div>);\n}\nif (!church) {
+if (!church) {
 return (<div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
 <div className="text-center space-y-3 p-8">
 <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto">
-<span className="text-2xl">🏛️</span>
+<span className="text-2xl">&#x1F3DB;</span>
 </div>
 <h1 className="text-xl font-serif font-semibold">Church Not Found</h1>
 <p className="text-white/40 text-sm">
