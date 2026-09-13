@@ -73,11 +73,6 @@ const PUBLIC_PATHS = ['/live', '/give', '/pray', '/portal', '/signup', '/kiosk',
 
 const AuthenticatedApp = () => {
 const { isLoadingAuth, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
-const [betaSuspended, setBetaSuspended] = useState(false);
-
-
-
-
 
 if (isLoadingAuth) {
 return (<div className="fixed inset-0 flex items-center justify-center">
@@ -109,8 +104,6 @@ return (<>
 <Route path="/login" element={<Login />} />
 <Route path="/forgot-password" element={<ForgotPassword />} />
 <Route path="/reset-password" element={<ResetPassword />} />
- <Route path="/beta-feedback" element={<BetaFeedback />} />
- <Route path="/beta-suspended" element={<BetaSuspended />} />
 <Route path="/c/:slug" element={<ChurchHome />} />
 <Route path="/c/:slug/:section" element={<ChurchSubpage />} />
 <Route path="/live" element={<PublicLiveStream />} />
