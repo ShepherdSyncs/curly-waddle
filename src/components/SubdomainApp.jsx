@@ -6,7 +6,7 @@ import { queryClientInstance } from '@/lib/query-client';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { AuthProvider } from '@/lib/AuthContext';
 import { ThemeProvider } from '@/lib/ThemeContext';
-import { AuthenticatedApp } from '@/App';
+import { AuthenticatedApp } from '@/components/AuthenticatedApp';
 import { Toaster } from '@/components/ui/toaster';
 
 function toSlug(name) {
