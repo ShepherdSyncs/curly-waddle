@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -12,7 +12,6 @@ import { supabase } from '@/supabaseClient';
 import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
 import ChurchSelector from '@/components/ChurchSelector';
-
 import SubdomainApp from '@/components/SubdomainApp';
 import AppLayout from '@/components/layout/AppLayout';
 import Dashboard from '@/pages/Dashboard';
@@ -52,7 +51,8 @@ import ContactPastoral from '@/pages/ContactPastoral';
 import Pricing from '@/pages/Pricing';
 import ServiceSchedule from '@/pages/ServiceSchedule';
 import Profile from '@/pages/Profile';
-import Demo from '@/pages/Demo';
+import SignUp from '@/pages/SignUp';
+import { setDemoMode } from '@/api/base44Client';
 
 const MAIN_HOSTNAMES = new Set([
 'shepherdsyncs.com',
@@ -68,6 +68,11 @@ const hostname = window.location.hostname;
 if (MAIN_HOSTNAMES.has(hostname)) return false;
 if (hostname.endsWith('.shepherdsyncs.com')) return true;
 return false;
+}
+
+function isDemoSubdomain() {
+const host = window.location.hostname.split('.')[0];
+return host === 'testchurch';
 }
 
 const PUBLIC_PATHS = ['/live', '/give', '/pray', '/portal', '/signup', '/kiosk', '/event-signup', '/login', '/forgot-password', '/reset-password'];
@@ -90,7 +95,7 @@ if (authError && authError.type === 'user_not_registered') {
 return <UserNotRegisteredError />;
 }
 
-if (authChecked &&!isAuthenticated) {
+if (authChecked && !isAuthenticated) {
 const path = window.location.pathname;
 const isPublicRoute = PUBLIC_PATHS.some(p => path.startsWith(p)) || path.startsWith('/c/');
 if (!isPublicRoute) {
@@ -105,16 +110,15 @@ return (<>
 <Route path="/login" element={<Login />} />
 <Route path="/forgot-password" element={<ForgotPassword />} />
 <Route path="/reset-password" element={<ResetPassword />} />
+<Route path="/signup" element={<SignUp />} />
 <Route path="/c/:slug" element={<ChurchHome />} />
 <Route path="/c/:slug/:section" element={<ChurchSubpage />} />
 <Route path="/live" element={<PublicLiveStream />} />
 <Route path="/give" element={<PublicGiving />} />
 <Route path="/pray" element={<PublicPrayer />} />
 <Route path="/portal" element={<ChurchPortal />} />
-<Route path="/signup" element={<PublicSignup />} />
 <Route path="/kiosk" element={<KioskMode />} />
 <Route path="/event-signup" element={<PublicEventSignup />} />
- <Route path="/demo" element={<Demo />} />
 <Route element={<AppLayout />}>
 <Route path="/" element={<Dashboard />} />
 <Route path="/churches" element={<Churches />} />
@@ -150,8 +154,38 @@ return (<>
 </>);
 };
 
+function DemoLoader() {
+const [ready, setReady] = useState(false);
+useEffect(() => {
+fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/demo-data').then(r => r.json()).then(d => {
+const cache = {};
+if (d.church) cache.churches = [d.church];
+if (d.members) cache.church_members = d.members;
+if (d.attendance) cache.attendance_records = d.attendance;
+if (d.giving) cache.giving_records = d.giving;
+if (d.events) cache.church_events = d.events;
+if (d.groups) cache.ministry_groups = d.groups;
+if (d.spiritual) cache.spiritual_records = d.spiritual;
+setDemoMode(cache);
+setReady(true);
+}).catch(() => setReady(true));
+}, []);
+if (!ready) return (<div className="fixed inset-0 flex items-center justify-center"><div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin" /></div>);
+return (<ThemeProvider>
+<AuthProvider>
+<QueryClientProvider client={queryClientInstance}>
+<Router>
+<AuthenticatedApp />
+</Router>
+<Toaster />
+</QueryClientProvider>
+</AuthProvider>
+</ThemeProvider>);
+}
+
 function App() {
 if (isSubdomain()) {
+if (isDemoSubdomain()) return <DemoLoader />;
 return <SubdomainApp />;
 }
 
