@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/supabaseClient';
 import ChurchPublicLanding from '@/components/church/ChurchPublicLanding';
+import DemoApp from '@/components/DemoApp';
 
 function toSlug(name) {
 return (name || '').toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
@@ -53,6 +54,7 @@ return (<div className="fixed inset-0 flex items-center justify-center bg-slate-
 </div>);
 }
 
+if (church && toSlug(church.name) === 'testchurch') return <DemoApp />;
 if (!church) {
 return (<div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
 <div className="text-center space-y-3 p-8">
