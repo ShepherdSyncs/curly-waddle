@@ -67,8 +67,7 @@ export default function AppLayout() {
   if (trialExpired) return <TrialExpired />;
 
   if (loading) {
-    {user?.email === 'demo@shepherdsyncs.com' && <div className="bg-primary text-primary-foreground px-6 py-2 text-center text-sm font-medium">Demo Mode - Explore freely, nothing is saved. <a href="/signup" className="underline ml-1">Sign up for real</a></div>}
-return (
+    return (
       <div className="fixed inset-0 flex items-center justify-center bg-background">
         <div className="w-8 h-8 border-4 border-muted border-t-primary rounded-full animate-spin" />
       </div>
