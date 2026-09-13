@@ -153,8 +153,10 @@ const auth = {
 };
 
 const functions = {
-  invoke(name, params) {
-    throw new Error('Function ' + name + ' needs to be implemented as a Supabase Edge Function');
+  async invoke(name, params) {
+ const { data, error } = await supabase.functions.invoke(name, { body: params });
+ if (error) throw new Error(error.message || 'Function call failed');
+ return data;
   },
 };
 
