@@ -1,6 +1,17 @@
 import { supabase } from '../supabaseClient';
 
 let currentChurchId = null;
+let demoMode = false;
+let demoCache = {};
+
+export function setDemoMode(data) {
+ demoMode = true;
+ demoCache = data || {};
+}
+
+export function isDemoMode() {
+ return demoMode;
+}
 let isGlobalAdmin = false;
 
 export function setSupabaseContext({ churchId, globalAdmin }) {
@@ -47,6 +58,7 @@ ChurchAccessCode: "church_access_codes",
 function createEntityHandler(tableName) {
   return {
     async filter(filters, sortBy, limit) {
+ if (demoMode && demoCache[tableName]) return demoCache[tableName];
       let query = supabase.from(tableName).select('*');
       if (filters) {
         Object.entries(filters).forEach(([key, value]) => {
@@ -72,6 +84,7 @@ function createEntityHandler(tableName) {
     },
 
     async list(sortBy, limit) {
+ if (demoMode && demoCache[tableName]) return demoCache[tableName];
       let query = supabase.from(tableName).select('*');
       if (sortBy) {
         const desc = sortBy.startsWith('-');
@@ -87,23 +100,27 @@ function createEntityHandler(tableName) {
     },
 
     async create(record) {
+ if (demoMode) return {...record, id: crypto.randomUUID?.() || 'demo-' + Date.now() };
       const { data, error } = await supabase.from(tableName).insert(record).select().single();
       if (error) throw error;
       return data;
     },
 
     async update(id, record) {
+ if (demoMode) return { id,...record };
       const { data, error } = await supabase.from(tableName).update(record).eq('id', id).select().single();
       if (error) throw error;
       return data;
     },
 
     async delete(id) {
+ if (demoMode) return;
       const { error } = await supabase.from(tableName).delete().eq('id', id);
       if (error) throw error;
     },
 
     async bulkCreate(records) {
+ if (demoMode) return records.map(r => ({...r, id: crypto.randomUUID?.() || 'demo-' + Date.now() }));
       const { data, error } = await supabase.from(tableName).insert(records).select();
       if (error) throw error;
       return data || [];
