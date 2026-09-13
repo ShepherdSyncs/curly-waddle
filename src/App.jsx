@@ -1,5 +1,3 @@
-}
-import { useState, useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -74,6 +72,7 @@ const PUBLIC_PATHS = ['/live', '/give', '/pray', '/portal', '/signup', '/kiosk',
 
 const AuthenticatedApp = () => {
 const { isLoadingAuth, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
+const [betaSuspended, setBetaSuspended] = useState(false);
 
 
 
@@ -108,7 +107,10 @@ return (<>
 <Routes>
 <Route path="/login" element={<Login />} />
 <Route path="/forgot-password" element={<ForgotPassword />} />
-<Route path="/reset-password" element={<ResetPassword />} /><Route path="/c/:slug" element={<ChurchHome />} />
+<Route path="/reset-password" element={<ResetPassword />} />
+ <Route path="/beta-feedback" element={<BetaFeedback />} />
+ <Route path="/beta-suspended" element={<BetaSuspended />} />
+<Route path="/c/:slug" element={<ChurchHome />} />
 <Route path="/c/:slug/:section" element={<ChurchSubpage />} />
 <Route path="/live" element={<PublicLiveStream />} />
 <Route path="/give" element={<PublicGiving />} />
