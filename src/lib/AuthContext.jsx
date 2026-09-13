@@ -1,10 +1,14 @@
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { setSupabaseContext } from '@/api/base44Client';
+import { setSupabaseContext, isDemoMode } from '@/api/base44Client';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+ if (isDemoMode()) {
+ const demoUser = { email: 'demo@shepherdsyncs.com', full_name: 'Demo Admin', role: 'church_admin', isChurchAdmin: true };
+ return <AuthContext.Provider value={{ user: demoUser, isAuthenticated: true, isLoadingAuth: false, authChecked: true, authError: null, isChurchAdmin: true, selectedChurchId: null, availableChurches: [], selectChurchId: () => {}, navigateToLogin: () => {} }}>{children}</AuthContext.Provider>;
+ }
 const [user, setUser] = useState(null);
 const [isAuthenticated, setIsAuthenticated] = useState(false);
 const [isLoadingAuth, setIsLoadingAuth] = useState(true);
