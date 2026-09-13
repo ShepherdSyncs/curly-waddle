@@ -52,7 +52,7 @@ import ContactPastoral from '@/pages/ContactPastoral';
 import Pricing from '@/pages/Pricing';
 import ServiceSchedule from '@/pages/ServiceSchedule';
 import Profile from '@/pages/Profile';
-import Demo from '@/pages/Demo';
+import SignUp from '@/pages/SignUp';
 
 const MAIN_HOSTNAMES = new Set([
 'shepherdsyncs.com',
@@ -114,7 +114,7 @@ return (<>
 <Route path="/signup" element={<PublicSignup />} />
 <Route path="/kiosk" element={<KioskMode />} />
 <Route path="/event-signup" element={<PublicEventSignup />} />
- <Route path="/demo" element={<Demo />} />
+ <Route path="/signup" element={<SignUp />} />
 <Route element={<AppLayout />}>
 <Route path="/" element={<Dashboard />} />
 <Route path="/churches" element={<Churches />} />
