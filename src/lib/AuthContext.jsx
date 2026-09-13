@@ -6,7 +6,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
  if (isDemoMode()) {
- const demoUser = { email: 'demo@shepherdsyncs.com', full_name: 'Demo Admin', role: 'church_admin', isChurchAdmin: true };
+ const demoUser = { email: 'demo@shepherdsyncs.com', full_name: 'Demo Admin', role: 'church_admin', isChurchAdmin: true, church_id: '9f20db45-9c34-456f-9f2e-402caf6bcae5' };
  return <AuthContext.Provider value={{ user: demoUser, isAuthenticated: true, isLoadingAuth: false, authChecked: true, authError: null, isChurchAdmin: true, selectedChurchId: null, availableChurches: [], selectChurchId: () => {}, navigateToLogin: () => {} }}>{children}</AuthContext.Provider>;
  }
 const [user, setUser] = useState(null);
