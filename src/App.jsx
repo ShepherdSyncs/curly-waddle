@@ -77,7 +77,7 @@ return host === 'testchurch';
 
 const PUBLIC_PATHS = ['/live', '/give', '/pray', '/portal', '/signup', '/kiosk', '/event-signup', '/login', '/forgot-password', '/reset-password'];
 
-const AuthenticatedApp = () => {
+export const AuthenticatedApp = () => {
 const { isLoadingAuth, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
 
 if (isLoadingAuth) {
