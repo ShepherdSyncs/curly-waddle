@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { supabase } from '@/supabaseClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import useAppUser from '@/hooks/useAppUser';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -213,7 +214,8 @@ const [selectedDomainChurchId, setSelectedDomainChurchId] = useState(null);
     if (!email || !inviteName) { toast.error('Enter a name and email'); return; }
     setInviting(true);
     try {
-      const res = await fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/invite-church-user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, inviteName, role: inviteRole, churchId: user?.church_id, churchName: activeChurch?.name || '' }) });
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/invite-church-user', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token || ''}` }, body: JSON.stringify({ email, inviteName, role: inviteRole, churchId: user?.church_id, churchName: activeChurch?.name || '' }) });
  const data = await res.json();
       if (res.data?.error) {
         toast.error(res.data.error);
