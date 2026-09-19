@@ -136,7 +136,8 @@ const [selectedDomainChurchId, setSelectedDomainChurchId] = useState(null);
       });
       // If a pastor email is provided, send welcome email + invite them as church_admin
       if (pastorEmail && church?.id) {
-        await fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/welcome-church-admin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ churchId: church.id, pastorEmail, pastorName: data.pastor_name || '', churchName: data.name }) });
+        const { data: { session } } = await supabase.auth.getSession();
+        await fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/welcome-church-admin', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token || ''}` }, body: JSON.stringify({ churchId: church.id, pastorEmail, pastorName: data.pastor_name || '', churchName: data.name }) });
       }
       return church;
     },

@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
+import { supabase } from '@/supabaseClient';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import useAppUser from '@/hooks/useAppUser';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -92,7 +93,8 @@ export default function MassTextingTab() {
         phone: m.phone,
         name: `${m.first_name} ${m.last_name}`,
       }));
-      const res = await fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/send-church-sms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ churchId, message: message.trim(), recipients }) });
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/send-church-sms', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token || ''}` }, body: JSON.stringify({ churchId, message: message.trim(), recipients }) });
  const data = await res.json();
       // replaced above
       if (data?.error) {
