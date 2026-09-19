@@ -159,8 +159,9 @@ const [selectedDomainChurchId, setSelectedDomainChurchId] = useState(null);
           const emails = c.admin_emails || (c.admin_email ? [c.admin_email] : []);
           return emails.includes(userEmail);
         });
+        const { data: { session: roleSession } } = await supabase.auth.getSession();
         for (const c of theirChurches) {
-          fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/sync-pastoral-staff', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ churchId: c.id, adminEmail: userEmail, adminName: userName || userEmail }) }).catch(() => {});
+          fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/sync-pastoral-staff', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${roleSession?.access_token || ''}` }, body: JSON.stringify({ churchId: c.id, adminEmail: userEmail, adminName: userName || userEmail }) }).catch(() => {});
         }
       }
     },
@@ -185,7 +186,8 @@ const [selectedDomainChurchId, setSelectedDomainChurchId] = useState(null);
       await base44.entities.Church.update(churchId, { admin_emails: updatedEmails });
       // Sync to Pastoral Staff on add
       if (action === 'add') {
-        fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/sync-pastoral-staff', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ churchId, adminEmail: userEmail, adminName: userName || userEmail }) }).catch(() => {});
+        const { data: { session: assignSession } } = await supabase.auth.getSession();
+        fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/sync-pastoral-staff', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${assignSession?.access_token || ''}` }, body: JSON.stringify({ churchId, adminEmail: userEmail, adminName: userName || userEmail }) }).catch(() => {});
       }
     },
     onSuccess: () => {
