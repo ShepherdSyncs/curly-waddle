@@ -10,9 +10,9 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Church, MapPin, Phone, Mail, Pause, Play, Clock, Paperclip, Trash2, Link, Copy, Users as UsersIcon, Radio, HandCoins, CreditCard } from 'lucide-react';
+import { Plus, Church, MapPin, Phone, Mail, Pause, Play, Clock, Paperclip, Archive, Link, Copy, Users as UsersIcon, Radio, HandCoins, CreditCard } from 'lucide-react';
 import DocumentAttachments from '@/components/DocumentAttachments';
-import DeleteChurchDialog from '@/components/churches/DeleteChurchDialog';
+import ArchiveChurchDialog from '@/components/churches/ArchiveChurchDialog';
 import ChurchSignupLinks from '@/components/churches/ChurchSignupLinks';
 import GlobalAdminOverrideDialog from '@/components/pricing/GlobalAdminOverrideDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -75,14 +75,6 @@ export default function Churches() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['churches'] });
       toast.success('Church updated');
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Church.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['churches'] });
-      toast.success('Church deleted');
     },
   });
 
@@ -210,7 +202,7 @@ export default function Churches() {
         </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {churches.map(church => {
+          {churches.filter(church => church.status !== 'archived').map(church => {
             const trialInfo = getTrialInfo(church);
             const isTrial = church.status === 'trial';
 
@@ -347,8 +339,8 @@ export default function Churches() {
                       <Paperclip className="w-3.5 h-3.5" />
                       Docs {(church.documents?.length || 0) > 0 && <span className="text-primary font-semibold">({church.documents.length})</span>}
                     </Button>
-                    <Button size="sm" variant="outline" className="text-xs gap-1 text-destructive hover:text-destructive" onClick={() => setDeleteTarget(church)}>
-                      <Trash2 className="w-3.5 h-3.5" /> Delete
+                    <Button size="sm" variant="outline" className="text-xs gap-1 text-amber-700 hover:text-amber-800" onClick={() => setDeleteTarget(church)}>
+                      <Archive className="w-3.5 h-3.5" /> Archive
                     </Button>
                   </div>
                 </CardContent>
@@ -414,11 +406,11 @@ export default function Churches() {
         </TabsContent>
       </Tabs>
 
-      {/* Delete Church Dialog */}
+      {/* Archive Church Dialog */}
       {deleteTarget && (
-        <DeleteChurchDialog
+        <ArchiveChurchDialog
           church={deleteTarget}
-          onConfirm={(c) => deleteMutation.mutate(c.id)}
+          onConfirm={() => queryClient.invalidateQueries({ queryKey: ['churches'] })}
           onClose={() => setDeleteTarget(null)}
         />
       )}
