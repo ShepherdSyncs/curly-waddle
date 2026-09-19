@@ -53,6 +53,9 @@ const entityTableMap = {
   ChurchSmsCredential: 'church_sms_credentials',
 AdminLockout: "admin_lockout",
 ChurchAccessCode: "church_access_codes",
+Survey: "surveys",
+SurveyAssignment: "survey_assignments",
+SurveyResponse: "survey_responses",
 };
 
 function createEntityHandler(tableName) {

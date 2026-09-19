@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserPlus, Users, Building2, Plus, Cake, Send, Trash2, User, Bell, Upload, Monitor, Sun, Moon, Settings2, AlertTriangle, HandCoins } from 'lucide-react';
+import { UserPlus, Users, Building2, Plus, Cake, Send, Trash2, User, Bell, Upload, Monitor, Sun, Moon, Settings2, AlertTriangle, HandCoins, Clock } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import ImportMembersDialog from '@/components/members/ImportMembersDialog';
 import RolePermissionsChecklist from '@/components/settings/RolePermissionsChecklist';
@@ -25,6 +25,7 @@ import TwilioConfig from "@/components/settings/TwilioConfig";
 import PushNotificationManager from "@/components/settings/PushNotificationManager";
 import ChurchAccessCodeDisplay from "@/components/settings/ChurchAccessCodeDisplay";
 import CustomRoleBuilder from '@/components/settings/CustomRoleBuilder';
+import ServiceTimesConfig from '@/components/settings/ServiceTimesConfig';
 import { Link } from 'react-router-dom';
 import { useTheme } from '@/lib/ThemeContext';
 import { toast } from 'sonner';
@@ -433,6 +434,22 @@ const [selectedDomainChurchId, setSelectedDomainChurchId] = useState(null);
 
       {/* AI Visitor Chat Config — church admin only */}
       {isChurchAdmin && activeChurch && <AIChatConfig church={activeChurch} onSave={(data) => base44.entities.Church.update(activeChurch.id, data).then(() => queryClient.invalidateQueries({ queryKey: ['churches'] }))} />}
+
+      {/* Service Times — church admin only; used to avoid popping up surveys during service */}
+      {isChurchAdmin && activeChurch && <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Clock className="w-5 h-5 text-primary" />
+            Service Times
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ServiceTimesConfig
+            church={activeChurch}
+            onSave={(data) => base44.entities.Church.update(activeChurch.id, data).then(() => queryClient.invalidateQueries({ queryKey: ['churches'] }))}
+          />
+        </CardContent>
+      </Card>}
 
 {(isChurchAdmin || isGlobalAdmin) && <TabsContent value="domain" className="space-y-4 mt-4">
 {activeChurch? (<CustomDomainSettings church={activeChurch} />): isGlobalAdmin && myChurches?.length > 0? (<div className="space-y-4">

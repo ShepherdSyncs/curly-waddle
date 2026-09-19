@@ -10,6 +10,7 @@ import WelcomeDialog from '@/components/onboarding/WelcomeDialog';
 import TourDialog from '@/components/onboarding/TourDialog';
 import { isDemoMode } from '@/api/base44Client';
 import PastoralMessagesWidget from '@/components/pastoral/PastoralMessagesWidget';
+import SurveyPromptWidget from '@/components/surveys/SurveyPromptWidget';
 import UserMenu from './UserMenu';
 import { supabase } from '@/supabaseClient';
 import { differenceInDays, addDays, parseISO } from 'date-fns';
@@ -115,6 +116,7 @@ export default function AppLayout() {
       <MobileNav />
 
       <PastoralMessagesWidget />
+      <SurveyPromptWidget />
 
       <WelcomeDialog
         open={showWelcome}

@@ -16,6 +16,8 @@ import AppLayout from '@/components/layout/AppLayout';
 import Dashboard from '@/pages/Dashboard';
 import Churches from '@/pages/Churches';
 import ArchivedChurches from '@/pages/ArchivedChurches';
+import SurveyBuilder from '@/pages/SurveyBuilder';
+import SurveyInbox from '@/pages/SurveyInbox';
 import Members from '@/pages/Members';
 import Attendance from '@/pages/Attendance';
 import Giving from '@/pages/Giving';
@@ -100,6 +102,8 @@ return (<>
 <Route path="/" element={<Dashboard />} />
 <Route path="/churches" element={<Churches />} />
 <Route path="/archived-churches" element={<ArchivedChurches />} />
+<Route path="/surveys" element={<SurveyBuilder />} />
+<Route path="/survey-inbox" element={<SurveyInbox />} />
 <Route path="/members" element={<Members />} />
 <Route path="/attendance" element={<Attendance />} />
 <Route path="/giving" element={<Giving />} />

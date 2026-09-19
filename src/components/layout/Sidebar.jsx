@@ -32,7 +32,8 @@ import {
   Mail,
   CreditCard,
   CalendarClock,
-  Archive
+  Archive,
+  Inbox
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
@@ -78,6 +79,8 @@ const roleHierarchy = {
 const globalAdminLinks = [
   { path: '/churches', label: 'Manage Churches', icon: Church },
   { path: '/archived-churches', label: 'Archived Churches', icon: Archive },
+  { path: '/surveys', label: 'Surveys', icon: ClipboardList },
+  { path: '/survey-inbox', label: 'Survey Inbox', icon: Inbox },
   { path: '/settings', label: 'Settings & Users', icon: Settings },
   { path: '/user-logs', label: 'User Logs', icon: Activity },
 ];
