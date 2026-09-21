@@ -456,24 +456,6 @@ const [selectedDomainChurchId, setSelectedDomainChurchId] = useState(null);
         </CardContent>
       </Card>}
 
-{(isChurchAdmin || isGlobalAdmin) && <TabsContent value="domain" className="space-y-4 mt-4">
-{activeChurch? (<CustomDomainSettings church={activeChurch} />): isGlobalAdmin && myChurches?.length > 0? (<div className="space-y-4">
-<p className="text-sm text-muted-foreground">Select a church to configure its domain:</p>
-<select
-className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-value={selectedDomainChurchId || ''}
-onChange={(e) => setSelectedDomainChurchId(e.target.value)}
->
-<option value="">Choose a church...</option>
-{myChurches.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-</select>
-{selectedDomainChurchId && <CustomDomainSettings church={myChurches.find(c => c.id === selectedDomainChurchId)} />}
-</div>): (<p className="text-sm text-muted-foreground">No church selected</p>)}
-</TabsContent>}
-
-{isGlobalAdmin && <TabsContent value='support' className='space-y-4 mt-4'>
-<SupportAccessManager />
-</TabsContent>}
       {/* Import Members — church admin only */}
       {isChurchAdmin && <Card>
         <CardHeader>
@@ -856,6 +838,37 @@ onChange={(e) => setSelectedDomainChurchId(e.target.value)}
         {isChurchAdmin && (
           <TabsContent value="custom-roles" className="space-y-6">
             <CustomRoleBuilder churchId={user?.church_id} />
+          </TabsContent>
+        )}
+
+        {/* Custom Domain — Church Admins and Global Admins */}
+        {(isChurchAdmin || isGlobalAdmin) && (
+          <TabsContent value="domain" className="space-y-4 mt-4">
+            {activeChurch ? (
+              <CustomDomainSettings church={activeChurch} />
+            ) : isGlobalAdmin && myChurches?.length > 0 ? (
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">Select a church to configure its domain:</p>
+                <select
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={selectedDomainChurchId || ''}
+                  onChange={(e) => setSelectedDomainChurchId(e.target.value)}
+                >
+                  <option value="">Choose a church...</option>
+                  {myChurches.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+                {selectedDomainChurchId && <CustomDomainSettings church={myChurches.find(c => c.id === selectedDomainChurchId)} />}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">No church selected</p>
+            )}
+          </TabsContent>
+        )}
+
+        {/* Support Access — Global Admins only */}
+        {isGlobalAdmin && (
+          <TabsContent value="support" className="space-y-4 mt-4">
+            <SupportAccessManager />
           </TabsContent>
         )}
       </Tabs>
