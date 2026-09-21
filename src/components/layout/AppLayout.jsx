@@ -94,13 +94,13 @@ export default function AppLayout() {
         <img src="https://media.base44.com/images/public/69f3e8b4f71d75bce21820e3/b353f16b7_ShepherdSyncsAppLogo.png" alt="ShepherdSyncs" className="w-7 h-7 object-contain" />
         <h1 className="font-serif text-lg font-semibold">ShepherdSyncs</h1>
         <div className="ml-auto">
-          <UserMenu user={user} />
+          <UserMenu user={user} onStartTour={() => setShowTour(true)} />
         </div>
       </div>
 
       {/* Desktop header */}
       <header className="hidden lg:flex fixed top-0 right-0 z-30 h-14 items-center justify-end px-6 border-b border-border bg-card/80 backdrop-blur" style={{ left: '16rem' }}>
-        <UserMenu user={user} />
+        <UserMenu user={user} onStartTour={() => setShowTour(true)} />
       </header>
 
       {/* Main content */}

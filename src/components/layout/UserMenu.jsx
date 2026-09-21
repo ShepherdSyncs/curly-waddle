@@ -2,10 +2,10 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { User, LogOut, ChevronDown } from 'lucide-react';
+import { User, LogOut, ChevronDown, Compass } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
-export default function UserMenu({ user }) {
+export default function UserMenu({ user, onStartTour }) {
   const navigate = useNavigate();
 
   return (
@@ -31,6 +31,12 @@ export default function UserMenu({ user }) {
           <User className="w-4 h-4 mr-2" />
           Profile
         </DropdownMenuItem>
+        {onStartTour && (
+          <DropdownMenuItem onClick={onStartTour}>
+            <Compass className="w-4 h-4 mr-2" />
+            Take the Tour
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => base44.auth.logout()} className="text-destructive focus:text-destructive">
           <LogOut className="w-4 h-4 mr-2" />
