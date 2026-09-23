@@ -124,7 +124,7 @@ export default function Landing() {
             Log In
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground mt-3">14-day free trial. No credit card required.</p>
+        <p className="text-xs text-muted-foreground mt-3">30-day free trial. No credit card required.</p>
       </section>
 
       {/* Features */}
@@ -152,7 +152,7 @@ export default function Landing() {
         <div className="max-w-md mx-auto px-4 sm:px-6 py-16 sm:py-20">
           <div className="text-center mb-8">
             <h2 className="text-2xl sm:text-3xl font-serif font-bold">Create Your Church's Account</h2>
-            <p className="text-muted-foreground text-sm mt-2">Start your 14-day free trial — no credit card needed.</p>
+            <p className="text-muted-foreground text-sm mt-2">Start your 30-day free trial — no credit card needed.</p>
           </div>
           <Card>
             <CardContent className="p-6">
