@@ -27,6 +27,7 @@ import PushNotificationManager from "@/components/settings/PushNotificationManag
 import ChurchAccessCodeDisplay from "@/components/settings/ChurchAccessCodeDisplay";
 import CustomRoleBuilder from '@/components/settings/CustomRoleBuilder';
 import ServiceTimesConfig from '@/components/settings/ServiceTimesConfig';
+import DeleteUserDialog from '@/components/settings/DeleteUserDialog';
 import { Link } from 'react-router-dom';
 import { useTheme } from '@/lib/ThemeContext';
 import { toast } from 'sonner';
@@ -70,6 +71,7 @@ const [selectedDomainChurchId, setSelectedDomainChurchId] = useState(null);
   const [profileLoaded, setProfileLoaded] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
   const [permissionsUser, setPermissionsUser] = useState(null);
+  const [userToDelete, setUserToDelete] = useState(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
 
@@ -800,7 +802,11 @@ const [selectedDomainChurchId, setSelectedDomainChurchId] = useState(null);
                           variant="ghost"
                           className="w-7 h-7 text-destructive"
                           onClick={() => {
-                            if (window.confirm(`Remove ${u.full_name || u.email}?`)) deleteUserMutation.mutate(u.id);
+                            if (isGlobalAdmin) {
+                              setUserToDelete(u);
+                            } else if (window.confirm(`Remove ${u.full_name || u.email}?`)) {
+                              deleteUserMutation.mutate(u.id);
+                            }
                           }}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -890,6 +896,15 @@ const [selectedDomainChurchId, setSelectedDomainChurchId] = useState(null);
         onOpenChange={(v) => { if (!v) setPermissionsUser(null); }}
         onSaved={() => queryClient.invalidateQueries({ queryKey: ['users'] })}
       />
+
+      {/* Global Admin user deletion — requires the admin PIN */}
+      {userToDelete && (
+        <DeleteUserDialog
+          targetUser={userToDelete}
+          onConfirm={() => queryClient.invalidateQueries({ queryKey: ['users'] })}
+          onClose={() => setUserToDelete(null)}
+        />
+      )}
 
       {/* Delete Account Confirmation Dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
