@@ -76,7 +76,7 @@ const host = window.location.hostname.split('.')[0];
 return host === 'testchurch';
 }
 
-const PUBLIC_PATHS = ['/live', '/give', '/pray', '/portal', '/signup', '/kiosk', '/event-signup', '/login', '/forgot-password', '/reset-password'];
+const PUBLIC_PATHS = ['/live', '/give', '/pray', '/portal', '/signup', '/get-started', '/kiosk', '/event-signup', '/login', '/forgot-password', '/reset-password'];
 
 
 function DemoLoader() {

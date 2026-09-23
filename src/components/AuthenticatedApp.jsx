@@ -54,7 +54,13 @@ import Pricing from '@/pages/Pricing';
 import ServiceSchedule from '@/pages/ServiceSchedule';
 import Profile from '@/pages/Profile';
 import SignUp from '@/pages/SignUp';
+import Landing from '@/pages/Landing';
 import { setDemoMode } from '@/api/base44Client';
+
+// Routes reachable without being signed in. Kept local to this file — PUBLIC_PATHS
+// used to be declared only in App.jsx, a different module, which threw a
+// ReferenceError here for every signed-out visit to a non-public path.
+const PUBLIC_PATHS = ['/live', '/give', '/pray', '/portal', '/signup', '/get-started', '/kiosk', '/event-signup', '/login', '/forgot-password', '/reset-password'];
 
 export const AuthenticatedApp = () => {
 const { isLoadingAuth, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
@@ -76,6 +82,10 @@ return <UserNotRegisteredError />;
 
 if (authChecked && !isAuthenticated) {
 const path = window.location.pathname;
+// The marketing home page is public — show it instead of bouncing to /login.
+if (path === '/') {
+return <Landing />;
+}
 const isPublicRoute = PUBLIC_PATHS.some(p => path.startsWith(p)) || path.startsWith('/c/');
 if (!isPublicRoute) {
 navigateToLogin();
@@ -90,6 +100,7 @@ return (<>
 <Route path="/forgot-password" element={<ForgotPassword />} />
 <Route path="/reset-password" element={<ResetPassword />} />
 <Route path="/signup" element={<SignUp />} />
+<Route path="/get-started" element={<Landing />} />
 <Route path="/c/:slug" element={<ChurchHome />} />
 <Route path="/c/:slug/:section" element={<ChurchSubpage />} />
 <Route path="/live" element={<PublicLiveStream />} />
