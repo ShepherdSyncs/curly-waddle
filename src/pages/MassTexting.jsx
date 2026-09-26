@@ -92,12 +92,11 @@ export default function MassTexting() {
         phone: m.phone,
         name: `${m.first_name} ${m.last_name}`,
       }));
-      const res = await base44.functions.invoke('sendChurchSMS', {
+      const data = await base44.functions.invoke('send-church-sms', {
         churchId,
         message: message.trim(),
         recipients,
       });
-      const data = res.data;
       if (data?.error) {
         toast.error(data.error);
         setResults({ error: data.error });

@@ -12,6 +12,7 @@ import useAppUser from '@/hooks/useAppUser';
 import { hasTierFeature } from '@/lib/tiers';
 import VisitorChatInbox from '@/components/chat/VisitorChatInbox';
 import MassTextingTab from '@/components/chat/MassTextingTab';
+import MassEmailTab from '@/components/chat/MassEmailTab';
 
 function formatMsgDate(d) {
   const date = new Date(d);
@@ -184,15 +185,18 @@ export default function ChurchChat() {
 
   return (
     <div className="space-y-4">
-    {canMassText && (
+    {(canMassText || isChurchAdmin) && (
       <Tabs value={commTab} onValueChange={setCommTab}>
         <TabsList>
           <TabsTrigger value="chat">Church Chat</TabsTrigger>
-          <TabsTrigger value="mass-texting">Mass Texting</TabsTrigger>
+          {canMassText && <TabsTrigger value="mass-texting">Mass Texting</TabsTrigger>}
+          {isChurchAdmin && <TabsTrigger value="mass-email">Mass Email</TabsTrigger>}
         </TabsList>
       </Tabs>
     )}
-    {(!canMassText || commTab === 'chat') ? (
+    {commTab === 'mass-email' ? (
+      <MassEmailTab />
+    ) : (!canMassText || commTab === 'chat') ? (
     <div className="flex h-[calc(100vh-80px)] overflow-hidden rounded-xl border bg-card">
       {/* Mobile sidebar toggle */}
       <button

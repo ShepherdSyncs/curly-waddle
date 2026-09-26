@@ -34,10 +34,10 @@ export default function SMSConfigTab({ church, onSaved }) {
         if (existing) {
           setForm({
             sms_enabled: existing.sms_enabled || false,
-            sms_provider: existing.sms_provider || 'twilio',
-            twilio_account_sid: existing.twilio_account_sid || '',
-            twilio_auth_token: existing.twilio_auth_token || '',
-            twilio_from_number: existing.twilio_from_number || '',
+            sms_provider: existing.provider || 'twilio',
+            twilio_account_sid: existing.account_sid || '',
+            twilio_auth_token: existing.auth_token || '',
+            twilio_from_number: existing.from_number || '',
           });
         }
       } catch (err) {
@@ -57,11 +57,10 @@ export default function SMSConfigTab({ church, onSaved }) {
       const payload = {
         church_id: church.id,
         sms_enabled: form.sms_enabled,
-        sms_provider: form.sms_provider,
-        twilio_account_sid: form.twilio_account_sid,
-        twilio_auth_token: form.twilio_auth_token,
-        twilio_from_number: form.twilio_from_number,
-        admin_emails: church.admin_emails || (church.admin_email ? [church.admin_email] : []),
+        provider: form.sms_provider,
+        account_sid: form.twilio_account_sid,
+        auth_token: form.twilio_auth_token,
+        from_number: form.twilio_from_number,
       };
       if (creds?.id) {
         await base44.entities.ChurchSmsCredentials.update(creds.id, payload);
@@ -84,17 +83,17 @@ export default function SMSConfigTab({ church, onSaved }) {
     }
     setTesting(true);
     try {
-      const res = await base44.functions.invoke('sendChurchSMS', {
+      const res = await base44.functions.invoke('send-church-sms', {
         churchId: church.id,
         message: 'Test message from ShepherdSyncs — your SMS platform is working!',
         recipients: [testPhone],
       });
-      if (res.data?.error) {
-        toast.error(res.data.error);
-      } else if (res.data?.sent > 0) {
+      if (res?.error && !res?.sent) {
+        toast.error(res.error);
+      } else if (res?.sent > 0) {
         toast.success('Test SMS sent successfully!');
       } else {
-        toast.error(res.data?.errors?.[0]?.error || 'Test SMS failed');
+        toast.error(res?.error || 'Test SMS failed');
       }
     } catch (err) {
       toast.error(err.message || 'Failed to send test');
