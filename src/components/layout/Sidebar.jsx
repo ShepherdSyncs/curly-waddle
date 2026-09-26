@@ -35,7 +35,8 @@ import {
   Archive,
   Inbox,
   ListMusic,
-  Receipt
+  Receipt,
+  Building2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
@@ -66,6 +67,7 @@ const navItems = [
   { path: '/sermons', label: 'Sermon Archive', icon: Mic, minRole: 'attendance_tracker' },
   { path: '/schedule', label: 'Schedule', icon: CalendarClock, minRole: 'attendance_tracker' },
   { path: '/set-lists', label: 'Set Lists', icon: ListMusic, minRole: 'attendance_tracker' },
+  { path: '/facility-booking', label: 'Facility Booking', icon: Building2, minRole: 'attendance_tracker' },
   { path: '/ministry', label: 'Ministry Groups', icon: UsersRound, minRole: 'attendance_tracker' },
   { path: '/chat', label: 'Church Chat', icon: MessageSquare, isCommunication: true },
   { path: '/contact-pastoral', label: 'Contact Pastoral Team', icon: Mail, minRole: 'attendance_tracker' },

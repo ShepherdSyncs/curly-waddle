@@ -44,6 +44,7 @@ import KioskMode from '@/pages/KioskMode';
 import ChildCheckIn from '@/pages/ChildCheckIn';
 import SetLists from '@/pages/SetLists';
 import GivingStatements from '@/pages/GivingStatements';
+import FacilityBooking from '@/pages/FacilityBooking';
 import PublicEventSignup from '@/pages/PublicEventSignup';
 import UserLogs from '@/pages/UserLogs';
 import FollowUpTasks from '@/pages/FollowUpTasks';
@@ -141,6 +142,7 @@ return (<>
 <Route path="/child-checkin" element={<ChildCheckIn />} />
 <Route path="/set-lists" element={<SetLists />} />
 <Route path="/giving-statements" element={<GivingStatements />} />
+<Route path="/facility-booking" element={<FacilityBooking />} />
 <Route path="/chat" element={<ChurchChat />} />
 <Route path="/study-companion" element={<BibleStudyCompanion />} />
 <Route path="/contact-pastoral" element={<ContactPastoral />} />

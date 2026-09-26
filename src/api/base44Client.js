@@ -56,6 +56,8 @@ const entityTableMap = {
   Song: 'songs',
   SetList: 'set_lists',
   SetListSong: 'set_list_songs',
+  FacilityResource: 'facility_resources',
+  FacilityBooking: 'facility_bookings',
 AdminLockout: "admin_lockout",
 ChurchAccessCode: "church_access_codes",
 Survey: "surveys",
