@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { base44 } from '@/api/base44Client';
+import { base44, isDemoMode } from '@/api/base44Client';
 
 const CHURCH_KEY = 'active_church_id';
 
@@ -54,7 +54,7 @@ export default function useAppUser() {
         // Self-heal: if church_id wasn't actually persisted on this account yet,
         // sync it in the background so future loads (and church-scoped permission
         // checks) don't have to re-derive it every time.
-        if (!isGlobalAdmin) {
+        if (!isGlobalAdmin && !isDemoMode()) {
           base44.functions.invoke('syncMyChurchId', {}).catch(() => {});
         }
       } catch (e) {

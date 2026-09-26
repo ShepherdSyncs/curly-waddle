@@ -8,7 +8,7 @@ import useAppUser from '@/hooks/useAppUser';
 import TrialExpired from '@/components/TrialExpired';
 import WelcomeDialog from '@/components/onboarding/WelcomeDialog';
 import TourDialog from '@/components/onboarding/TourDialog';
-import { isDemoMode } from '@/api/base44Client';
+import { base44, isDemoMode } from '@/api/base44Client';
 import PastoralMessagesWidget from '@/components/pastoral/PastoralMessagesWidget';
 import SurveyPromptWidget from '@/components/surveys/SurveyPromptWidget';
 import UserMenu from './UserMenu';
@@ -41,6 +41,17 @@ export default function AppLayout() {
     if (!user || isGlobalAdmin) return;
     const churchId = user.church_id;
     if (!churchId) return;
+
+    // Demo mode never has a real Supabase session, so a direct table query
+    // here would just come back empty under RLS. base44.entities.Church
+    // already knows to serve the cached demo church instead of hitting
+    // Supabase, so route through that here rather than querying directly.
+    if (isDemoMode()) {
+      base44.entities.Church.filter({ id: churchId }).then(rows => {
+        if (rows?.[0]) setChurchData(rows[0]);
+      });
+      return;
+    }
 
     supabase.from('churches').select('*').eq('id', churchId).maybeSingle().then(({ data: church }) => {
  if (!church) return;

@@ -149,6 +149,23 @@ const entities = new Proxy({}, {
 
 const auth = {
   async me() {
+    if (demoMode) {
+      // Demo mode never establishes a real Supabase session (see DemoLoader in
+      // App.jsx), so there's nothing for supabase.auth.getSession() to find.
+      // Without this, useAppUser()'s base44.auth.me() call always returns null
+      // here, which is why the demo dashboard showed "Welcome, there!" with 0
+      // members instead of the cached demo church's real data.
+      const demoChurch = demoCache.churches?.[0] || null;
+      return {
+        id: 'demo-admin',
+        email: 'demo@shepherdsyncs.com',
+        full_name: 'Demo Admin',
+        role: 'church_admin',
+        church_id: demoChurch?.id || null,
+        church_name: demoChurch?.name || null,
+        extra_permissions: [],
+      };
+    }
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return null;
     const { data: profile } = await supabase.from('users').select('*').eq('email', session.user.email).maybeSingle();
