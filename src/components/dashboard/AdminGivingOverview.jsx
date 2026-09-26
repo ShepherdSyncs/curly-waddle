@@ -30,7 +30,7 @@ export default function AdminGivingOverview({ churchId }) {
   });
 
   const byType = giving.reduce((acc, g) => {
-    acc[g.type] = (acc[g.type] || 0) + (g.amount || 0);
+    acc[g.fund] = (acc[g.fund] || 0) + (g.amount || 0);
     return acc;
   }, {});
 

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Heart, X, CheckCircle2 } from 'lucide-react';
+import { Heart, X, CheckCircle2, Repeat } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
@@ -22,7 +23,15 @@ const QUICK_AMOUNTS = [25, 50, 100, 250, 500];
 export default function GivingModal({ churchId, churchName, onClose }) {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', amount: '', type: 'offering', notes: '' });
+  const [form, setForm] = useState({ name: '', email: '', amount: '', type: 'offering', frequency: 'one_time', notes: '' });
+
+  const { data: churchRows = [] } = useQuery({
+    queryKey: ['church-giving-provider', churchId],
+    queryFn: () => base44.entities.Church.filter({ id: churchId }),
+    enabled: !!churchId,
+  });
+  const church = churchRows[0];
+  const hasStripe = church?.giving_provider === 'stripe' && church?.stripe_connect_charges_enabled;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,13 +40,37 @@ export default function GivingModal({ churchId, churchName, onClose }) {
       return;
     }
     setSubmitting(true);
+
+    if (hasStripe) {
+      try {
+        const result = await base44.functions.invoke('create-giving-checkout', {
+          churchId,
+          amount: parseFloat(form.amount),
+          fund: form.type,
+          frequency: form.frequency,
+          donorName: form.name,
+          donorEmail: form.email,
+          returnUrl: window.location.href,
+        });
+        if (result?.url) {
+          window.location.href = result.url;
+          return;
+        }
+        toast.error(result?.error || 'Could not start checkout');
+      } catch (err) {
+        toast.error(err.message || 'Could not start checkout');
+      }
+      setSubmitting(false);
+      return;
+    }
+
     await base44.entities.GivingRecord.create({
       church_id: churchId,
       member_name: form.name || 'Anonymous',
       date: format(new Date(), 'yyyy-MM-dd'),
       amount: parseFloat(form.amount),
-      type: form.type,
-      method: 'online',
+      fund: form.type,
+      payment_method: 'online',
       notes: form.notes || (form.email ? `Email: ${form.email}` : ''),
     });
     setSubmitted(true);
@@ -103,6 +136,30 @@ export default function GivingModal({ churchId, churchName, onClose }) {
                 </div>
               </div>
 
+              {hasStripe && (
+                <div>
+                  <Label className="text-white/70 text-xs mb-2 flex items-center gap-1.5"><Repeat className="w-3 h-3" /> Frequency</Label>
+                  <div className="flex gap-2">
+                    {[
+                      { value: 'one_time', label: 'One Time' },
+                      { value: 'weekly', label: 'Weekly' },
+                      { value: 'monthly', label: 'Monthly' },
+                    ].map(f => (
+                      <button
+                        key={f.value}
+                        type="button"
+                        onClick={() => setForm({ ...form, frequency: f.value })}
+                        className={`flex-1 px-2 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                          form.frequency === f.value ? 'bg-primary text-white border-primary' : 'border-white/20 text-white/80 hover:bg-white/10'
+                        }`}
+                      >
+                        {f.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Giving type */}
               <div>
                 <Label className="text-white/70 text-xs mb-1 block">Giving Type</Label>
@@ -145,9 +202,11 @@ export default function GivingModal({ churchId, churchName, onClose }) {
                 disabled={submitting || !form.amount}
               >
                 <Heart className="w-4 h-4" />
-                {submitting ? 'Processing...' : `Give${form.amount ? ` $${parseFloat(form.amount || 0).toFixed(2)}` : ''}`}
+                {submitting ? 'Processing...' : `Give${form.amount ? ` $${parseFloat(form.amount || 0).toFixed(2)}` : ''}${hasStripe && form.frequency !== 'one_time' ? ` / ${form.frequency === 'weekly' ? 'week' : 'month'}` : ''}`}
               </Button>
-              <p className="text-xs text-center text-white/30">Your giving is securely recorded.</p>
+              <p className="text-xs text-center text-white/30">
+                {hasStripe ? 'You\'ll be taken to a secure Stripe checkout to complete your gift.' : 'Your giving is securely recorded.'}
+              </p>
             </form>
           ) : (
             <div className="py-6 text-center space-y-3">

@@ -9,7 +9,7 @@ import { format } from 'date-fns';
 const GIVING_TYPES = ['tithe', 'offering', 'missions', 'building_fund', 'benevolence', 'other'];
 const PAYMENT_METHODS = ['cash', 'check', 'online', 'other'];
 
-const emptyForm = { date: format(new Date(), 'yyyy-MM-dd'), amount: '', type: 'tithe', method: 'cash', notes: '', member_name: '', member_id: '', member_email: '' };
+const emptyForm = { date: format(new Date(), 'yyyy-MM-dd'), amount: '', fund: 'tithe', payment_method: 'cash', notes: '', member_name: '', member_id: '', member_email: '' };
 
 export default function RecordGivingDialog({ open, onOpenChange, onSave, members = [], isSaving, initialData }) {
   const [form, setForm] = useState(emptyForm);
@@ -17,7 +17,7 @@ export default function RecordGivingDialog({ open, onOpenChange, onSave, members
   useEffect(() => {
     if (open) {
       setForm(initialData
-        ? { date: initialData.date || '', amount: String(initialData.amount || ''), type: initialData.type || 'tithe', method: initialData.method || 'cash', notes: initialData.notes || '', member_name: initialData.member_name || '', member_id: initialData.member_id || '', member_email: initialData.member_email || '' }
+        ? { date: initialData.date || '', amount: String(initialData.amount || ''), fund: initialData.fund || 'tithe', payment_method: initialData.payment_method || 'cash', notes: initialData.notes || '', member_name: initialData.member_name || '', member_id: initialData.member_id || '', member_email: initialData.member_email || '' }
         : emptyForm
       );
     }
@@ -66,7 +66,7 @@ export default function RecordGivingDialog({ open, onOpenChange, onSave, members
 
           <div>
             <Label>Type</Label>
-            <Select value={form.type} onValueChange={v => setForm({ ...form, type: v })}>
+            <Select value={form.fund} onValueChange={v => setForm({ ...form, fund: v })}>
               <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
               <SelectContent>{GIVING_TYPES.map(t => <SelectItem key={t} value={t}>{t.replace(/_/g, ' ')}</SelectItem>)}</SelectContent>
             </Select>
@@ -74,7 +74,7 @@ export default function RecordGivingDialog({ open, onOpenChange, onSave, members
 
           <div>
             <Label>Payment Method</Label>
-            <Select value={form.method} onValueChange={v => setForm({ ...form, method: v })}>
+            <Select value={form.payment_method} onValueChange={v => setForm({ ...form, payment_method: v })}>
               <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
               <SelectContent>{PAYMENT_METHODS.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
             </Select>

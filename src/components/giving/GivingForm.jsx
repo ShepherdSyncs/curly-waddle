@@ -27,8 +27,8 @@ export default function GivingForm({ user, churchId, onSuccess }) {
       member_email: user.email,
       date: format(new Date(), 'yyyy-MM-dd'),
       amount: parseFloat(amount),
-      type,
-      method,
+      fund: type,
+      payment_method: method,
       notes,
     }),
     onSuccess: () => {

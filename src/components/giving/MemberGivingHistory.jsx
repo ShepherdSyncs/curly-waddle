@@ -19,7 +19,7 @@ export default function MemberGivingHistory({ memberName, records, onBack, onEdi
   const yearTotal = records.filter(r => r.date?.startsWith(thisYear)).reduce((s, r) => s + (r.amount || 0), 0);
 
   const byType = records.reduce((acc, r) => {
-    acc[r.type] = (acc[r.type] || 0) + (r.amount || 0);
+    acc[r.fund] = (acc[r.fund] || 0) + (r.amount || 0);
     return acc;
   }, {});
 
@@ -73,8 +73,8 @@ export default function MemberGivingHistory({ memberName, records, onBack, onEdi
               {records.map(r => (
                 <div key={r.id} className="flex items-center justify-between px-4 py-3">
                   <div>
-                    <p className="text-sm font-medium capitalize">{r.type?.replace(/_/g, ' ')}</p>
-                    <p className="text-xs text-muted-foreground">{r.date} · {r.method}</p>
+                    <p className="text-sm font-medium capitalize">{r.fund?.replace(/_/g, ' ')}</p>
+                    <p className="text-xs text-muted-foreground">{r.date} · {r.payment_method}</p>
                     {r.notes && <p className="text-xs text-muted-foreground italic">{r.notes}</p>}
                   </div>
                   <div className="flex items-center gap-2">

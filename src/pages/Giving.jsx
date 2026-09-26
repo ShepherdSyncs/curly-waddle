@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import RecordGivingDialog from '@/components/giving/RecordGivingDialog';
 import MemberGivingHistory from '@/components/giving/MemberGivingHistory';
+import StripeConnectPanel from '@/components/giving/StripeConnectPanel';
 
 const GIVING_TYPES = ['tithe', 'offering', 'missions', 'building_fund', 'benevolence', 'other'];
 const PAYMENT_METHODS_ENUM = ['cash', 'check', 'online', 'other'];
@@ -43,6 +44,7 @@ const TYPE_COLORS = {
 const emptyMethodForm = { provider: 'cashapp', label: '', instructions: '', link_url: '', handle: '', qr_image_url: '', sort_order: 0 };
 
 export default function Giving() {
+  const queryClient = useQueryClient();
   const { user, loading, isStaff, isChurchAdmin, isGlobalAdmin, hasPermission } = useAppUser();
   const churchId = user?.church_id;
 
@@ -80,6 +82,13 @@ export default function Giving() {
     queryFn: () => base44.entities.PaymentMethod.filter({ church_id: churchId, is_active: true }, 'sort_order', 20),
     enabled: !!churchId,
   });
+
+  const { data: churchRows = [] } = useQuery({
+    queryKey: ['church-giving-provider', churchId],
+    queryFn: () => base44.entities.Church.filter({ id: churchId }),
+    enabled: !!churchId && isChurchAdmin,
+  });
+  const currentChurch = churchRows[0];
 
   const { data: givingRecords = [] } = useQuery({
     queryKey: ['giving', churchId],
@@ -166,7 +175,7 @@ export default function Giving() {
   );
 
   const filteredRecords = givingRecords.filter(g => {
-    const matchesType = typeFilter === 'all' || g.type === typeFilter;
+    const matchesType = typeFilter === 'all' || g.fund === typeFilter;
     const matchesSearch = !search || (g.member_name || '').toLowerCase().includes(search.toLowerCase());
     return matchesType && matchesSearch;
   });
@@ -313,7 +322,7 @@ export default function Giving() {
               <CardHeader><CardTitle className="text-base">Giving by Category</CardTitle></CardHeader>
               <CardContent className="space-y-2">
                 {GIVING_TYPES.map(type => {
-                  const amt = givingRecords.filter(r => r.type === type).reduce((s, r) => s + (r.amount || 0), 0);
+                  const amt = givingRecords.filter(r => r.fund === type).reduce((s, r) => s + (r.amount || 0), 0);
                   if (!amt) return null;
                   return (
                     <div key={type} className="flex items-center justify-between">
@@ -382,9 +391,9 @@ export default function Giving() {
                         <td className="px-4 py-3 text-muted-foreground">{g.date}</td>
                         <td className="px-4 py-3">{g.member_name || '—'}</td>
                         <td className="px-4 py-3">
-                          <Badge className={`text-xs ${TYPE_COLORS[g.type] || TYPE_COLORS.other}`}>{g.type?.replace(/_/g, ' ')}</Badge>
+                          <Badge className={`text-xs ${TYPE_COLORS[g.fund] || TYPE_COLORS.other}`}>{g.fund?.replace(/_/g, ' ')}</Badge>
                         </td>
-                        <td className="px-4 py-3 capitalize text-muted-foreground">{g.method}</td>
+                        <td className="px-4 py-3 capitalize text-muted-foreground">{g.payment_method}</td>
                         <td className="px-4 py-3 text-right font-semibold text-primary">${(g.amount || 0).toLocaleString()}</td>
                         {(isChurchAdmin || isGlobalAdmin) && (
                           <td className="px-4 py-3">
@@ -443,7 +452,13 @@ export default function Giving() {
 
         {/* PAYMENT METHODS — admin config */}
         <TabsContent value="methods" className="space-y-3 mt-4">
-          <p className="text-sm text-muted-foreground">Configure how members can give. Add payment links, handles, or QR codes for any provider.</p>
+          {currentChurch && (
+            <StripeConnectPanel
+              church={currentChurch}
+              onRefresh={() => queryClient.invalidateQueries({ queryKey: ['church-giving-provider'] })}
+            />
+          )}
+          <p className="text-sm text-muted-foreground pt-2">Or configure other ways members can give — payment links, handles, or QR codes for any provider.</p>
           {paymentMethods.length === 0 && (
             <Card><CardContent className="py-8 text-center text-muted-foreground">No payment methods added yet</CardContent></Card>
           )}

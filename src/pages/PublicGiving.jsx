@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Heart, Cross, CheckCircle2, HandCoins } from 'lucide-react';
+import { Heart, Cross, CheckCircle2, HandCoins, Repeat } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
@@ -35,6 +35,7 @@ export default function PublicGiving() {
     email: '',
     amount: '',
     type: 'tithe',
+    frequency: 'one_time',
     notes: '',
   });
 
@@ -47,6 +48,7 @@ export default function PublicGiving() {
 
   const church = churches[0];
   const effectiveChurchId = church?.id || churchId;
+  const hasStripe = church?.giving_provider === 'stripe' && church?.stripe_connect_charges_enabled;
 
   const PLATFORM_LABELS = {
     planning_center: 'Planning Center',
@@ -73,13 +75,38 @@ export default function PublicGiving() {
     }
 
     setSubmitting(true);
+
+    if (hasStripe) {
+      try {
+        const result = await base44.functions.invoke('create-giving-checkout', {
+          churchId: effectiveChurchId,
+          amount: parseFloat(form.amount),
+          fund: form.type,
+          frequency: form.frequency,
+          donorName: form.name,
+          donorEmail: form.email,
+          returnUrl: window.location.href,
+        });
+        if (result?.url) {
+          window.location.href = result.url;
+          return;
+        }
+        toast.error(result?.error || 'Could not start checkout');
+      } catch (err) {
+        toast.error(err.message || 'Could not start checkout');
+      }
+      setSubmitting(false);
+      return;
+    }
+
+    // No online processor connected yet — fall back to a manually-recorded gift.
     await base44.entities.GivingRecord.create({
       church_id: effectiveChurchId,
       member_name: form.name || 'Anonymous',
       date: format(new Date(), 'yyyy-MM-dd'),
       amount: parseFloat(form.amount),
-      type: form.type,
-      method: 'online',
+      fund: form.type,
+      payment_method: 'online',
       notes: form.notes || (form.email ? `Email: ${form.email}` : ''),
     });
     setSubmitted(true);
@@ -98,7 +125,7 @@ export default function PublicGiving() {
             Your gift of <span className="font-bold text-foreground">${parseFloat(form.amount).toFixed(2)}</span> has been recorded.
           </p>
           {church && <p className="text-sm text-muted-foreground">God bless you, {church.name}!</p>}
-          <Button className="mt-6 w-full" variant="outline" onClick={() => { setSubmitted(false); setForm({ name: '', email: '', amount: '', type: 'tithe', notes: '' }); }}>
+          <Button className="mt-6 w-full" variant="outline" onClick={() => { setSubmitted(false); setForm({ name: '', email: '', amount: '', type: 'tithe', frequency: 'one_time', notes: '' }); }}>
             Give Again
           </Button>
         </Card>
@@ -124,8 +151,8 @@ export default function PublicGiving() {
           )}
         </div>
 
-        {/* External giving platform or no-platform message */}
-        {church && !church.online_giving_url ? (
+        {/* External giving platform or no-platform message — only when there's no native Stripe checkout */}
+        {!hasStripe && church && !church.online_giving_url ? (
           <div className="p-6 rounded-xl border border-white/20 bg-white/5 text-center">
             <HandCoins className="w-10 h-10 text-white/60 mx-auto mb-3" />
             <p className="text-sm text-white/80 leading-relaxed">
@@ -134,7 +161,7 @@ export default function PublicGiving() {
           </div>
         ) : (
           <>
-            {church?.online_giving_url && (
+            {!hasStripe && church?.online_giving_url && (
               <div className="mb-4 p-4 rounded-xl border border-primary/40 bg-primary/10 text-center space-y-3">
                 <p className="text-sm text-white/80">Give electronically via {church.name}'s giving platform</p>
                 <a
@@ -184,6 +211,31 @@ export default function PublicGiving() {
                       />
                     </div>
                   </div>
+
+                  {hasStripe && (
+                    <div>
+                      <Label className="flex items-center gap-1.5"><Repeat className="w-3.5 h-3.5" /> Frequency</Label>
+                      <div className="flex gap-2 mt-1.5">
+                        {[
+                          { value: 'one_time', label: 'One Time' },
+                          { value: 'weekly', label: 'Weekly' },
+                          { value: 'monthly', label: 'Monthly' },
+                        ].map(f => (
+                          <button
+                            key={f.value}
+                            type="button"
+                            onClick={() => setForm({ ...form, frequency: f.value })}
+                            className={`flex-1 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
+                              form.frequency === f.value ? 'bg-primary text-primary-foreground border-primary' : 'border-border hover:bg-muted'
+                            }`}
+                          >
+                            {f.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <div>
                     <Label>Giving Type</Label>
                     <Select value={form.type} onValueChange={v => setForm({ ...form, type: v })}>
@@ -198,19 +250,23 @@ export default function PublicGiving() {
                     <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Anonymous" />
                   </div>
                   <div>
-                    <Label>Email (optional — for receipt)</Label>
+                    <Label>Email {hasStripe ? '(for your receipt)' : '(optional — for receipt)'}</Label>
                     <Input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="your@email.com" />
                   </div>
-                  <div>
-                    <Label>Note (optional)</Label>
-                    <Input value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="e.g. Building fund dedication" />
-                  </div>
+                  {!hasStripe && (
+                    <div>
+                      <Label>Note (optional)</Label>
+                      <Input value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="e.g. Building fund dedication" />
+                    </div>
+                  )}
                   <Button type="submit" className="w-full gap-2 h-11" disabled={submitting || !form.amount}>
                     <Heart className="w-4 h-4" />
-                    {submitting ? 'Processing...' : `Give${form.amount ? ` $${parseFloat(form.amount || 0).toFixed(2)}` : ''}`}
+                    {submitting ? 'Processing...' : `Give${form.amount ? ` $${parseFloat(form.amount || 0).toFixed(2)}` : ''}${hasStripe && form.frequency !== 'one_time' ? ` / ${form.frequency === 'weekly' ? 'week' : 'month'}` : ''}`}
                   </Button>
                   <p className="text-xs text-center text-muted-foreground">
-                    Your giving record is securely saved. For payment processing, contact your church admin.
+                    {hasStripe
+                      ? 'You\'ll be taken to a secure Stripe checkout to complete your gift.'
+                      : 'Your giving record is securely saved. For payment processing, contact your church admin.'}
                   </p>
                 </form>
               </CardContent>
