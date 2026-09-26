@@ -34,7 +34,8 @@ import {
   CalendarClock,
   Archive,
   Inbox,
-  ListMusic
+  ListMusic,
+  Receipt
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
@@ -57,6 +58,7 @@ const navItems = [
   { path: '/members', label: 'Members', icon: Users, minRole: 'church_staff', permission: 'manage_members' },
   { path: '/attendance', label: 'Attendance', icon: CalendarCheck, minRole: 'attendance_tracker' },
   { path: '/giving', label: 'Giving', icon: HandCoins, minRole: 'church_staff', permission: 'view_giving' },
+  { path: '/giving-statements', label: 'Giving Statements', icon: Receipt, minRole: 'church_admin' },
   { path: '/spiritual', label: 'Spiritual Records', icon: Droplets, minRole: 'church_staff', permission: 'view_spiritual' },
   { path: '/bible-study', label: 'Bible Study', icon: BookOpen, minRole: 'attendance_tracker', permission: 'access_bible_study' },
   { path: '/prayer', label: 'Prayer Requests', icon: Heart, minRole: 'attendance_tracker' },

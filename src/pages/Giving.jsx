@@ -11,7 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Plus, HandCoins, ExternalLink, Edit2, Trash2, DollarSign, Search, Users } from 'lucide-react';
+import { Plus, HandCoins, ExternalLink, Edit2, Trash2, DollarSign, Search, Users, Receipt } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import RecordGivingDialog from '@/components/giving/RecordGivingDialog';
@@ -211,6 +212,11 @@ export default function Giving() {
         </div>
         {canManage && (
           <div className="flex gap-2">
+            {isChurchAdmin && (
+              <Button asChild variant="outline" className="gap-2">
+                <Link to="/giving-statements"><Receipt className="w-4 h-4" /> Statements</Link>
+              </Button>
+            )}
             {canRecord && <Button variant="outline" onClick={() => setGivingOpen(true)} className="gap-2">
               <Plus className="w-4 h-4" /> Record Giving
             </Button>}

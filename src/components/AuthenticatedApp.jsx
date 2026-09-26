@@ -43,6 +43,7 @@ import VerifyMembers from '@/pages/VerifyMembers';
 import KioskMode from '@/pages/KioskMode';
 import ChildCheckIn from '@/pages/ChildCheckIn';
 import SetLists from '@/pages/SetLists';
+import GivingStatements from '@/pages/GivingStatements';
 import PublicEventSignup from '@/pages/PublicEventSignup';
 import UserLogs from '@/pages/UserLogs';
 import FollowUpTasks from '@/pages/FollowUpTasks';
@@ -139,6 +140,7 @@ return (<>
 <Route path="/mass-texting" element={<MassTexting />} />
 <Route path="/child-checkin" element={<ChildCheckIn />} />
 <Route path="/set-lists" element={<SetLists />} />
+<Route path="/giving-statements" element={<GivingStatements />} />
 <Route path="/chat" element={<ChurchChat />} />
 <Route path="/study-companion" element={<BibleStudyCompanion />} />
 <Route path="/contact-pastoral" element={<ContactPastoral />} />
