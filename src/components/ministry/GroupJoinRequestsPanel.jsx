@@ -30,8 +30,7 @@ export default function GroupJoinRequestsPanel({ churchId, groups, user, isAdmin
         church_id: churchId,
         group_id: req.group_id,
         member_email: req.user_email,
-        member_name: req.user_name,
-        available: true,
+        display_name: req.user_name,
       });
     },
     onSuccess: () => {

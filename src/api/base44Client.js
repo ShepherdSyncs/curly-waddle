@@ -56,6 +56,8 @@ ChurchAccessCode: "church_access_codes",
 Survey: "surveys",
 SurveyAssignment: "survey_assignments",
 SurveyResponse: "survey_responses",
+MemberWeeklyAvailability: "member_weekly_availability",
+MemberAvailabilityException: "member_availability_exceptions",
 };
 
 function createEntityHandler(tableName) {

@@ -93,7 +93,7 @@ export default function MinistryAttendanceAnalytics({ groups, churchId }) {
       const recs = filteredAttendance.filter(a => a.member_id === m.id);
       const present = recs.filter(a => a.present).length;
       const total = recs.length;
-      return { name: m.member_name, rate: total > 0 ? Math.round((present / total) * 100) : 0, present, total };
+      return { name: m.display_name, rate: total > 0 ? Math.round((present / total) * 100) : 0, present, total };
     }).filter(m => m.total > 0).sort((a, b) => b.rate - a.rate);
   }, [selectedGroupId, members, filteredAttendance]);
 

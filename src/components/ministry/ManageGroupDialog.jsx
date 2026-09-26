@@ -26,7 +26,7 @@ export default function ManageGroupDialog({ group, isAdmin, user, onClose, onSav
     color: group?.color || '#6366f1',
   });
   const [search, setSearch] = useState('');
-  const [newMember, setNewMember] = useState({ member_name: '', member_email: '', role_in_group: '' });
+  const [newMember, setNewMember] = useState({ display_name: '', member_email: '', member_role: '' });
 
   const { data: members = [] } = useQuery({
     queryKey: ['ministry-members', group?.id],
@@ -60,7 +60,7 @@ export default function ManageGroupDialog({ group, isAdmin, user, onClose, onSav
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ministry-members', group?.id] });
-      setNewMember({ member_name: '', member_email: '', role_in_group: '' });
+      setNewMember({ display_name: '', member_email: '', member_role: '' });
       toast.success('Member added');
     },
   });
@@ -77,12 +77,14 @@ export default function ManageGroupDialog({ group, isAdmin, user, onClose, onSav
     const alreadyAdded = members.some(m => m.member_email === profile.user_email);
     if (alreadyAdded) { toast.error('Already in group'); return; }
     addMemberMutation.mutate({
-      member_name: profile.display_name || profile.user_email,
+      display_name: profile.display_name || profile.user_email,
       member_email: profile.user_email,
-      role_in_group: '',
-      in_directory: true,
+      member_role: '',
     });
   };
+
+  // ministry_group_members has no in_directory column — derive it instead of storing it.
+  const directoryEmails = new Set(directoryProfiles.map(p => p.user_email));
 
   const filteredDirectory = directoryProfiles.filter(p => {
     if (!search) return true;
@@ -169,14 +171,14 @@ export default function ManageGroupDialog({ group, isAdmin, user, onClose, onSav
                 {members.map(m => (
                   <div key={m.id} className="flex items-center gap-3 p-2.5 rounded-lg border bg-muted/30">
                     <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary flex-shrink-0">
-                      {m.member_name?.[0] || '?'}
+                      {m.display_name?.[0] || '?'}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{m.member_name}</p>
-                      {m.role_in_group && <p className="text-xs text-muted-foreground">{m.role_in_group}</p>}
+                      <p className="text-sm font-medium truncate">{m.display_name}</p>
+                      {m.member_role && <p className="text-xs text-muted-foreground">{m.member_role}</p>}
                     </div>
                     <div className="flex items-center gap-1.5">
-                      {m.in_directory ? (
+                      {directoryEmails.has(m.member_email) ? (
                         <Badge variant="outline" className="text-xs gap-1"><Eye className="w-3 h-3" /> Directory</Badge>
                       ) : (
                         <Badge variant="outline" className="text-xs gap-1 text-muted-foreground"><EyeOff className="w-3 h-3" /> Off-directory</Badge>
@@ -214,12 +216,12 @@ export default function ManageGroupDialog({ group, isAdmin, user, onClose, onSav
               <div className="space-y-2 pt-2 border-t">
                 <p className="text-sm font-semibold">Add Member Manually</p>
                 <div className="grid grid-cols-3 gap-2">
-                  <Input placeholder="Full name *" value={newMember.member_name} onChange={e => setNewMember({ ...newMember, member_name: e.target.value })} className="text-sm" />
+                  <Input placeholder="Full name *" value={newMember.display_name} onChange={e => setNewMember({ ...newMember, display_name: e.target.value })} className="text-sm" />
                   <Input placeholder="Email (optional)" value={newMember.member_email} onChange={e => setNewMember({ ...newMember, member_email: e.target.value })} className="text-sm" />
-                  <Input placeholder="Role (optional)" value={newMember.role_in_group} onChange={e => setNewMember({ ...newMember, role_in_group: e.target.value })} className="text-sm" />
+                  <Input placeholder="Role (optional)" value={newMember.member_role} onChange={e => setNewMember({ ...newMember, member_role: e.target.value })} className="text-sm" />
                 </div>
-                <Button size="sm" variant="outline" className="gap-1.5" disabled={!newMember.member_name || addMemberMutation.isPending}
-                  onClick={() => addMemberMutation.mutate({ ...newMember, in_directory: false })}>
+                <Button size="sm" variant="outline" className="gap-1.5" disabled={!newMember.display_name || addMemberMutation.isPending}
+                  onClick={() => addMemberMutation.mutate({ ...newMember })}>
                   <UserPlus className="w-3.5 h-3.5" /> Add Member
                 </Button>
               </div>

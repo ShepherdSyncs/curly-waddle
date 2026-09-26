@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Trash2, Bell, ChevronRight, ChevronLeft, Users, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
+import { getMemberAvailability } from '@/lib/availability';
 
 export default function ScheduleDialog({ group, editSchedule, user, onClose }) {
   const queryClient = useQueryClient();
@@ -39,22 +40,42 @@ export default function ScheduleDialog({ group, editSchedule, user, onClose }) {
 
   const { data: members = [] } = useQuery({
     queryKey: ['ministry-members-available', group.id],
-    queryFn: async () => {
-      const all = await base44.entities.MinistryGroupMember.filter({ group_id: group.id });
-      return all.filter(m => m.available !== false);
-    },
+    queryFn: () => base44.entities.MinistryGroupMember.filter({ group_id: group.id }),
   });
+
+  // Availability data for every member in the church — filtered client-side per
+  // member below, same pattern as other church-scoped lookups in this app.
+  const { data: weeklyRules = [] } = useQuery({
+    queryKey: ['weekly-availability', group.church_id],
+    queryFn: () => base44.entities.MemberWeeklyAvailability.filter({ church_id: group.church_id }),
+    enabled: !!group.church_id,
+  });
+  const { data: exceptions = [] } = useQuery({
+    queryKey: ['availability-exceptions', group.church_id],
+    queryFn: () => base44.entities.MemberAvailabilityException.filter({ church_id: group.church_id }, '-start_date', 500),
+    enabled: !!group.church_id,
+  });
+
+  const getAvailabilityFor = (memberEmail) => {
+    if (!isValidDate(form.date)) return { available: true, reason: null };
+    return getMemberAvailability({ memberEmail, date: form.date, weeklyRules, exceptions });
+  };
 
   const [selectedMemberEmail, setSelectedMemberEmail] = useState('');
   const [assigneeRole, setAssigneeRole] = useState('');
 
   const addAssignee = () => {
-    const member = members.find(m => m.member_email === selectedMemberEmail || m.member_name === selectedMemberEmail);
+    const member = members.find(m => m.member_email === selectedMemberEmail || m.display_name === selectedMemberEmail);
     if (!member) return;
-    if (form.assignees.some(a => a.member_name === member.member_name)) { toast.error('Already assigned'); return; }
+    if (form.assignees.some(a => a.member_name === member.display_name)) { toast.error('Already assigned'); return; }
+    const avail = getAvailabilityFor(member.member_email);
+    if (!avail.available) {
+      toast.error(`${member.display_name} is marked unavailable${avail.reason ? ` — ${avail.reason}` : ''} on this date`);
+      return;
+    }
     setForm(prev => ({
       ...prev,
-      assignees: [...prev.assignees, { member_email: member.member_email || '', member_name: member.member_name, role: assigneeRole }],
+      assignees: [...prev.assignees, { member_email: member.member_email || '', member_name: member.display_name, role: assigneeRole }],
     }));
     setSelectedMemberEmail('');
     setAssigneeRole('');
@@ -240,14 +261,45 @@ export default function ScheduleDialog({ group, editSchedule, user, onClose }) {
                 <Select value={selectedMemberEmail} onValueChange={setSelectedMemberEmail}>
                   <SelectTrigger className="text-xs col-span-2"><SelectValue placeholder="Select member…" /></SelectTrigger>
                   <SelectContent>
-                    {members.map(m => (
-                      <SelectItem key={m.id} value={m.member_email || m.member_name} className="text-xs">{m.member_name}</SelectItem>
-                    ))}
+                    {members.map(m => {
+                      const avail = getAvailabilityFor(m.member_email);
+                      return (
+                        <SelectItem
+                          key={m.id}
+                          value={m.member_email || m.display_name}
+                          disabled={!avail.available}
+                          className="text-xs"
+                        >
+                          <span className="flex items-center gap-1.5">
+                            {m.display_name}
+                            {isValidDate(form.date) && (
+                              <Badge
+                                variant="outline"
+                                className={`text-[10px] px-1 py-0 h-4 leading-none ${avail.available ? 'text-green-600 border-green-300' : 'text-red-500 border-red-300'}`}
+                              >
+                                {avail.available ? 'Available' : 'Unavailable'}
+                              </Badge>
+                            )}
+                          </span>
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
                 <Input className="text-xs" placeholder="Role…" value={assigneeRole} onChange={e => setAssigneeRole(e.target.value)} />
               </div>
-              <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={addAssignee} disabled={!selectedMemberEmail}>
+              {selectedMemberEmail && !getAvailabilityFor(selectedMemberEmail).available && (
+                <p className="text-xs text-destructive">
+                  Unavailable on this date{getAvailabilityFor(selectedMemberEmail).reason ? ` — ${getAvailabilityFor(selectedMemberEmail).reason}` : ''}. Pick another date or member.
+                </p>
+              )}
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5 text-xs"
+                onClick={addAssignee}
+                disabled={!selectedMemberEmail || !getAvailabilityFor(selectedMemberEmail).available}
+              >
                 <Plus className="w-3.5 h-3.5" /> Add Worker
               </Button>
             </div>

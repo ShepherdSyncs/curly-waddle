@@ -52,7 +52,7 @@ export default function AnnounceDialog({ group, user, onClose }) {
     },
   });
 
-  const recipientNames = members.map(m => m.member_name);
+  const recipientNames = members.map(m => m.display_name);
 
   return (
     <Dialog open onOpenChange={onClose}>

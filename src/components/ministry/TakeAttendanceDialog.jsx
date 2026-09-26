@@ -50,7 +50,7 @@ export default function TakeAttendanceDialog({ schedule, group, onClose, readOnl
             group_id: group.id,
             church_id: group.church_id,
             member_id: member.id,
-            member_name: member.member_name,
+            member_name: member.display_name,
             member_email: member.member_email || '',
             date: schedule.date,
             present: isPresent,
@@ -136,11 +136,11 @@ export default function TakeAttendanceDialog({ schedule, group, onClose, readOnl
                   <div key={member.id}
                     className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${isPresent ? 'bg-green-50 border-green-200 dark:bg-green-900/10 dark:border-green-800' : 'bg-red-50 border-red-200 dark:bg-red-900/10 dark:border-red-800'}`}>
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${isPresent ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
-                      {member.member_name[0]}
+                      {member.display_name?.[0] || '?'}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{member.member_name}</p>
-                      {member.role_in_group && <p className="text-xs text-muted-foreground">{member.role_in_group}</p>}
+                      <p className="text-sm font-medium truncate">{member.display_name}</p>
+                      {member.member_role && <p className="text-xs text-muted-foreground">{member.member_role}</p>}
                     </div>
                     <div className="flex items-center gap-1.5 flex-shrink-0">
                       {readOnly ? (

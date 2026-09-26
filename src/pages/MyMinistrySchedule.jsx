@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CalendarDays, Clock, MapPin, Users } from 'lucide-react';
 import { format } from 'date-fns';
+import AvailabilitySettings from '@/components/ministry/AvailabilitySettings';
 
 export default function MyMinistrySchedule() {
   const { user } = useAppUser();
@@ -47,10 +48,13 @@ export default function MyMinistrySchedule() {
 
   if (myGroups.length === 0) {
     return (
-      <div className="text-center py-16 text-muted-foreground">
-        <CalendarDays className="w-12 h-12 mx-auto mb-3 opacity-30" />
-        <p className="font-medium">Not assigned to any ministry group yet.</p>
-        <p className="text-sm mt-1">Ask your group leader to add you.</p>
+      <div className="space-y-8">
+        <div className="text-center py-16 text-muted-foreground">
+          <CalendarDays className="w-12 h-12 mx-auto mb-3 opacity-30" />
+          <p className="font-medium">Not assigned to any ministry group yet.</p>
+          <p className="text-sm mt-1">Ask your group leader to add you.</p>
+        </div>
+        <AvailabilitySettings user={user} churchId={churchId} />
       </div>
     );
   }
@@ -140,6 +144,11 @@ export default function MyMinistrySchedule() {
           </div>
         </div>
       )}
+
+      {/* My Availability */}
+      <div className="pt-4 border-t">
+        <AvailabilitySettings user={user} churchId={churchId} />
+      </div>
     </div>
   );
 }
