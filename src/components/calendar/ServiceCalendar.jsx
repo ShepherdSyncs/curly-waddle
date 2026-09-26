@@ -100,18 +100,25 @@ export default function ServiceCalendar({ churchId, isAdmin }) {
     end: endOfMonth(currentDate),
   });
 
-  // Parse date strings as local dates to avoid UTC offset shifting day
+  // Parse date strings as local dates to avoid UTC offset shifting day.
+  // Some events have no date set — return null rather than throwing so
+  // they're simply skipped from the calendar instead of crashing it.
   const parseLocalDate = (dateStr) => {
+    if (!dateStr) return null;
     const [y, m, d] = dateStr.split('-').map(Number);
     return new Date(y, m - 1, d);
   };
 
-  const monthEvents = events.filter(e =>
-    daysInMonth.some(day => isSameDay(parseLocalDate(e.date), day))
-  );
+  const monthEvents = events.filter(e => {
+    const parsed = parseLocalDate(e.date);
+    return parsed && daysInMonth.some(day => isSameDay(parsed, day));
+  });
 
   const getEventsForDay = (day) =>
-    monthEvents.filter(e => isSameDay(parseLocalDate(e.date), day));
+    monthEvents.filter(e => {
+      const parsed = parseLocalDate(e.date);
+      return parsed && isSameDay(parsed, day);
+    });
 
   const handleRsvp = (event, attending) => {
     rsvpMutation.mutate({
