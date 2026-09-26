@@ -12,6 +12,7 @@ import { format, parseISO } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AttendanceTaker from '@/components/attendance/AttendanceTaker';
 import FollowUpTasksPanel from '@/components/attendance/FollowUpTasksPanel';
+import InactiveMembersPanel from '@/components/dashboard/InactiveMembersPanel';
 
 const SERVICE_TYPES = [
   { value: 'sunday_morning', label: 'Sunday Morning' },
@@ -104,6 +105,7 @@ export default function Attendance() {
                 church={church}
               />
               {churchId && <FollowUpTasksPanel churchId={churchId} isAdmin={isChurchAdmin || isGlobalAdmin} />}
+              {churchId && (isChurchAdmin || isGlobalAdmin) && <InactiveMembersPanel churchId={churchId} />}
             </TabsContent>
           )}
 

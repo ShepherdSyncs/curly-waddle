@@ -16,62 +16,71 @@ export default function AddVisitorDialog({ churchId, churchAdminEmail, user, ser
     if (!form.visitor_name.trim()) { toast.error('Name is required'); return; }
     setSaving(true);
 
-    // Split name into first/last for ChurchMember record
-    const nameParts = form.visitor_name.trim().split(' ');
-    const first_name = nameParts[0] || form.visitor_name.trim();
-    const last_name = nameParts.slice(1).join(' ') || '';
-
-    // Create a ChurchMember with status 'visitor' so they appear in the Guests tab
-    let guestMember;
     try {
-      // Avoid duplicates — check if a visitor with the same name already exists
-      const existing = await base44.entities.ChurchMember.filter({
-        church_id: churchId, status: 'visitor', first_name, last_name,
-      });
-      if (existing.length === 0) {
-        guestMember = await base44.entities.ChurchMember.create({
-          church_id: churchId,
-          first_name,
-          last_name,
-          email: form.visitor_email || '',
-          phone: form.visitor_phone || '',
-          status: 'visitor',
-          member_since: serviceDate,
+      // Split name into first/last for ChurchMember record
+      const nameParts = form.visitor_name.trim().split(' ');
+      const first_name = nameParts[0] || form.visitor_name.trim();
+      const last_name = nameParts.slice(1).join(' ') || '';
+
+      // Create a ChurchMember with status 'visitor' so they appear in the Guests tab
+      let guestMember;
+      try {
+        // Avoid duplicates — check if a visitor with the same name already exists
+        const existing = await base44.entities.ChurchMember.filter({
+          church_id: churchId, status: 'visitor', first_name, last_name,
         });
-      } else {
-        guestMember = existing[0];
-      }
-    } catch (_) {}
+        if (existing.length === 0) {
+          guestMember = await base44.entities.ChurchMember.create({
+            church_id: churchId,
+            first_name,
+            last_name,
+            email: form.visitor_email || '',
+            phone: form.visitor_phone || '',
+            status: 'visitor',
+            member_since: serviceDate,
+          });
+        } else {
+          guestMember = existing[0];
+        }
+      } catch (_) {}
 
-    // Create follow-up task
-    await base44.entities.FollowUpTask.create({
-      church_id: churchId,
-      visitor_name: form.visitor_name,
-      visitor_email: form.visitor_email,
-      status: 'pending',
-      date_added: serviceDate,
-      added_by_name: user?.full_name || user?.email || 'Staff',
-      added_by_email: user?.email || '',
-    });
-
-    // Send email to person who added + church admin
-    const recipients = [user?.email, churchAdminEmail].filter(Boolean);
-    for (const to of recipients) {
-      if (!to) continue;
-      await base44.integrations.Core.SendEmail({
-        to,
-        subject: `New Visitor: ${form.visitor_name} — Follow-Up Needed`,
-        body: `A new visitor was recorded on ${format(new Date(serviceDate + 'T00:00:00'), 'MMMM d, yyyy')}.\n\n` +
-          `Name: ${form.visitor_name}\n` +
-          `Email: ${form.visitor_email || 'Not provided'}\n` +
-          `Added by: ${user?.full_name || user?.email || 'Staff'}\n\n` +
-          `Please follow up with this visitor. You can assign a follow-up task from the Attendance page.`,
+      // Create follow-up task
+      await base44.entities.FollowUpTask.create({
+        church_id: churchId,
+        type: 'visitor',
+        visitor_name: form.visitor_name,
+        visitor_email: form.visitor_email || null,
+        visitor_phone: form.visitor_phone || null,
+        status: 'pending',
+        date_added: serviceDate,
+        added_by_name: user?.full_name || user?.email || 'Staff',
+        added_by_email: user?.email || '',
       });
-    }
 
-    toast.success(`Guest added — follow-up emails sent`);
-    onAdded?.({ id: guestMember?.id || `visitor-${Date.now()}`, member_name: form.visitor_name, isVisitor: true });
-    onClose();
+      // Notify the person who added the visitor + the church admin — best-effort,
+      // shouldn't block the visitor/task record from being saved if email fails.
+      const recipients = [user?.email, churchAdminEmail].filter(Boolean);
+      if (recipients.length > 0) {
+        base44.functions.invoke('send-church-email', {
+          churchId,
+          subject: `New Visitor: ${form.visitor_name} — Follow-Up Needed`,
+          message: `A new visitor was recorded on ${format(new Date(serviceDate + 'T00:00:00'), 'MMMM d, yyyy')}.\n\n` +
+            `Name: ${form.visitor_name}\n` +
+            `Email: ${form.visitor_email || 'Not provided'}\n` +
+            `Added by: ${user?.full_name || user?.email || 'Staff'}\n\n` +
+            `Please follow up with this visitor. You can assign a follow-up task from the Attendance page.`,
+          recipients,
+        }).catch(() => {});
+      }
+
+      toast.success('Guest added — follow-up task created');
+      onAdded?.({ id: guestMember?.id || `visitor-${Date.now()}`, member_name: form.visitor_name, isVisitor: true });
+      onClose();
+    } catch (err) {
+      toast.error(err.message || 'Failed to add visitor');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (

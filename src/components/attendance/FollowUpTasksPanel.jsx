@@ -68,13 +68,13 @@ export default function FollowUpTasksPanel({ churchId, isAdmin }) {
       id: task.id,
       data: {
         assigned_to_email: member.member_email,
-        assigned_to_name: member.member_name,
+        assigned_to_name: member.display_name,
         status: 'in_progress',
       },
     });
 
     // Send assignment email
-    fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/send-followup-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ assignee_name: member.member_name, assignee_email: member.member_email, visitor_name: task.visitor_name, church_id: churchId }) }).catch(() => {});
+    fetch('https://nzodqfzbowhyrnuauzzr.supabase.co/functions/v1/send-followup-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ assignee_name: member.display_name, assignee_email: member.member_email, visitor_name: task.visitor_name, church_id: churchId }) }).catch(() => {});
   };
 
   const pendingTasks = tasks.filter(t => t.status !== 'completed');
@@ -130,7 +130,7 @@ export default function FollowUpTasksPanel({ churchId, isAdmin }) {
                         ) : (
                           leaderOptions.map(m => (
                             <SelectItem key={m.id} value={m.id}>
-                              {m.member_name} — {m.member_email}
+                              {m.display_name} — {m.member_email}
                             </SelectItem>
                           ))
                         )}
