@@ -6,7 +6,8 @@ import {
   LayoutDashboard, Users, CalendarCheck, HandCoins, Droplets, BookOpen,
   Heart, CalendarDays, Mic, BookMarked, UsersRound, MessageSquare,
   BarChart2, Settings, Radio, ClipboardList, Sparkles, CalendarRange,
-  ChevronRight, ChevronLeft, Mail, CreditCard, X
+  ChevronRight, ChevronLeft, Mail, CreditCard, X, CalendarClock,
+  ListMusic, Building2, Receipt, Baby
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -16,14 +17,19 @@ const STAFF_TOUR_STEPS = [
   { key: 'dashboard', path: '/', title: 'Dashboard', icon: LayoutDashboard, minRole: 'attendance_tracker', description: "Get a bird's-eye view of your church — attendance trends, giving summaries, upcoming events, and recent activity all in one place." },
   { key: 'members', path: '/members', title: 'Members', icon: Users, minRole: 'church_staff', permission: 'manage_members', description: "Manage your church members — add, edit, and view full member profiles, family groups, the member directory, and contact information." },
   { key: 'attendance', path: '/attendance', title: 'Attendance', icon: CalendarCheck, minRole: 'attendance_tracker', description: "Track who's here! Take attendance by service, monitor trends, and automatically flag members who've been absent." },
+  { key: 'child-checkin', path: '/child-checkin', title: 'Child Check-In', icon: Baby, minRole: 'attendance_tracker', description: "Check kids in and out of classes with printable pickup codes, guardian claim tickets, and allergy alerts. Found under the Kiosk tab on the Attendance page." },
   { key: 'giving', path: '/giving', title: 'Giving', icon: HandCoins, minRole: 'church_staff', permission: 'view_giving', description: "Record tithes and offerings, view giving history, and generate reports for your church's financial records." },
+  { key: 'giving-statements', path: '/giving-statements', title: 'Giving Statements', icon: Receipt, minRole: 'church_admin', description: "Generate year-end donor giving statements as downloadable PDFs, grouped by donor, with your church's EIN for tax purposes." },
   { key: 'spiritual', path: '/spiritual', title: 'Spiritual Records', icon: Droplets, minRole: 'church_staff', permission: 'view_spiritual', description: "Track baptisms, salvation decisions, and Holy Ghost milestones — keep a permanent record of each member's spiritual journey." },
   { key: 'bible-study', path: '/bible-study', title: 'Bible Study', icon: BookOpen, minRole: 'attendance_tracker', permission: 'access_bible_study', description: "Plan and document Bible study sessions, create and share study guides, and chat with an AI companion that uses your church's study history for personalized reflections." },
   { key: 'prayer', path: '/prayer', title: 'Prayer Requests', icon: Heart, minRole: 'attendance_tracker', description: "Receive and manage prayer requests from your congregation — categorize, add staff notes, and mark answered prayers." },
   { key: 'events', path: '/events', title: 'Events', icon: CalendarDays, minRole: 'attendance_tracker', description: "Create and publish church events with RSVP tracking, signup forms, and automatic reminders." },
   { key: 'sermons', path: '/sermons', title: 'Sermon Archive', icon: Mic, minRole: 'attendance_tracker', description: "Build a searchable library of past sermons — upload audio/video, add notes, and let members revisit messages anytime. Church admins can also manage live streaming from the Live Stream tab here." },
+  { key: 'schedule', path: '/schedule', title: 'Schedule', icon: CalendarClock, minRole: 'attendance_tracker', description: "Plan out services and volunteer schedules for your ministry groups." },
+  { key: 'set-lists', path: '/set-lists', title: 'Set Lists', icon: ListMusic, minRole: 'attendance_tracker', description: "Keep a song library with keys, tempo, and CCLI numbers, then build and reorder set lists for upcoming services." },
+  { key: 'facility-booking', path: '/facility-booking', title: 'Facility Booking', icon: Building2, minRole: 'attendance_tracker', description: "Reserve rooms, equipment, and vehicles for events, with automatic conflict detection if a resource is already booked." },
   { key: 'ministry', path: '/ministry', title: 'Ministry Groups', icon: UsersRound, minRole: 'attendance_tracker', description: "Organize ministry teams — assign leaders, schedule volunteers, take group attendance, and send announcements." },
-  { key: 'chat', path: '/chat', title: 'Communication', icon: MessageSquare, minRole: 'attendance_tracker', permission: 'access_church_chat', description: "Stay connected — chat with your church family in general channels or ministry group conversations. Church admins can also send bulk SMS messages to the congregation." },
+  { key: 'chat', path: '/chat', title: 'Communication', icon: MessageSquare, minRole: 'attendance_tracker', permission: 'access_church_chat', description: "Stay connected — chat with your church family in general channels or ministry group conversations. Church admins can also send bulk SMS and email messages to the congregation." },
   { key: 'contact-pastoral', path: '/contact-pastoral', title: 'Contact Pastoral Team', icon: Mail, minRole: 'attendance_tracker', description: "Send a private message to your church's pastoral team — always available, even without chat access." },
   { key: 'follow-up', path: '/follow-up', title: 'Follow-Up Tasks', icon: ClipboardList, minRole: 'church_admin', description: "Never miss a visitor — track follow-up tasks, assign them to staff, and monitor completion. Found under Admin Features in the sidebar." },
   { key: 'livestream', path: '/livestream', title: 'Live Stream', icon: Radio, minRole: 'church_admin', requiresLivestream: true, description: "Broadcast your services live — manage stream keys, simulcast to YouTube and Facebook, and archive recordings. Find it under the Live Stream tab in Sermon Archive." },
