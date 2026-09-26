@@ -142,10 +142,18 @@ export default function Events() {
 
   const myRsvpFor = (eventId) => myRsvps.find(r => r.event_id === eventId);
 
-  const upcoming = events.filter(e => isFuture(parseISO(e.date)) || isToday(parseISO(e.date)));
-  const past = events.filter(e => !isFuture(parseISO(e.date)) && !isToday(parseISO(e.date)));
+  const upcoming = events.filter(e => e.date && (isFuture(parseISO(e.date)) || isToday(parseISO(e.date))));
+  const past = events.filter(e => !e.date || (!isFuture(parseISO(e.date)) && !isToday(parseISO(e.date))));
 
   const catInfo = (cat) => CATEGORIES.find(c => c.value === cat) || CATEGORIES[6];
+
+  // date-fns' parseISO throws on null/undefined (it calls .split on the raw
+  // value), and some legacy events have no date set — format defensively so
+  // one bad record can't take down the whole page.
+  const safeFormat = (dateStr, fmt, fallback = 'No date set') => {
+    if (!dateStr) return fallback;
+    try { return format(parseISO(dateStr), fmt); } catch { return fallback; }
+  };
 
   return (
     <div className="space-y-6">
@@ -185,8 +193,8 @@ export default function Events() {
                 <div className="flex gap-4">
                   {/* Date block */}
                   <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-primary/10 flex flex-col items-center justify-center text-center">
-                    <p className="text-xs font-medium text-primary uppercase">{format(parseISO(event.date), 'MMM')}</p>
-                    <p className="text-2xl font-bold text-primary leading-none">{format(parseISO(event.date), 'd')}</p>
+                    <p className="text-xs font-medium text-primary uppercase">{safeFormat(event.date, 'MMM', '—')}</p>
+                    <p className="text-2xl font-bold text-primary leading-none">{safeFormat(event.date, 'd', '—')}</p>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2 flex-wrap">
@@ -240,7 +248,7 @@ export default function Events() {
               <Card key={event.id} className="opacity-60">
                 <CardContent className="p-3 flex items-center gap-3">
                   <div className="flex-shrink-0 text-center w-10">
-                    <p className="text-xs text-muted-foreground">{format(parseISO(event.date), 'MMM d')}</p>
+                    <p className="text-xs text-muted-foreground">{safeFormat(event.date, 'MMM d')}</p>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium">{event.title}</p>
@@ -277,7 +285,7 @@ export default function Events() {
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Calendar className="w-4 h-4" />
-                    {format(parseISO(selectedEvent.date), 'EEEE, MMMM d, yyyy')}
+                    {safeFormat(selectedEvent.date, 'EEEE, MMMM d, yyyy')}
                   </div>
                   {selectedEvent.time && (
                     <div className="flex items-center gap-2 text-muted-foreground">
@@ -347,7 +355,7 @@ export default function Events() {
               <div className="space-y-4 mt-2">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div className="space-y-0.5">
-                    <p className="text-sm text-muted-foreground">{format(parseISO(signupViewEvent.date), 'EEEE, MMMM d, yyyy')}</p>
+                    <p className="text-sm text-muted-foreground">{safeFormat(signupViewEvent.date, 'EEEE, MMMM d, yyyy')}</p>
                     <p className="text-lg font-bold text-primary">
                       {signupViewSignups.length} signed up · {signupViewSignups.reduce((s, r) => s + 1 + (r.guest_count || 0), 0)} total attendees
                     </p>
