@@ -7,9 +7,10 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CalendarClock, Plus, Trash2, Clock, Users } from 'lucide-react';
+import { CalendarClock, Plus, Trash2, Clock, Users, ListMusic } from 'lucide-react';
 import { toast } from 'sonner';
 import { format, parseISO, isValid } from 'date-fns';
+import { Link } from 'react-router-dom';
 import ScheduleDialog from '@/components/ministry/ScheduleDialog';
 import GroupJoinRequestsPanel from '@/components/ministry/GroupJoinRequestsPanel';
 import BrowseGroupsPanel from '@/components/ministry/BrowseGroupsPanel';
@@ -104,19 +105,26 @@ export default function ServiceSchedule() {
             {isStaff ? 'Manage service schedules and worker assignments' : 'Browse ministry groups and view your schedule'}
           </p>
         </div>
-        {isStaff && myManagedGroups.length > 0 && (
+        {isStaff && (
           <div className="flex gap-2 items-center">
-            {myManagedGroups.length > 1 && (
-              <Select value={newGroupId} onValueChange={setNewGroupId}>
-                <SelectTrigger className="w-44 h-9 text-sm"><SelectValue placeholder="Select group…" /></SelectTrigger>
-                <SelectContent>
-                  {myManagedGroups.map(g => <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            )}
-            <Button onClick={handleNewService} className="gap-2">
-              <Plus className="w-4 h-4" /> New Service
+            <Button asChild variant="outline" className="gap-2">
+              <Link to="/set-lists"><ListMusic className="w-4 h-4" /> Set Lists</Link>
             </Button>
+            {myManagedGroups.length > 0 && (
+              <>
+                {myManagedGroups.length > 1 && (
+                  <Select value={newGroupId} onValueChange={setNewGroupId}>
+                    <SelectTrigger className="w-44 h-9 text-sm"><SelectValue placeholder="Select group…" /></SelectTrigger>
+                    <SelectContent>
+                      {myManagedGroups.map(g => <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                )}
+                <Button onClick={handleNewService} className="gap-2">
+                  <Plus className="w-4 h-4" /> New Service
+                </Button>
+              </>
+            )}
           </div>
         )}
       </div>
