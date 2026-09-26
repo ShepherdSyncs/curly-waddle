@@ -7,7 +7,7 @@ import {
   Heart, CalendarDays, Mic, BookMarked, UsersRound, MessageSquare,
   BarChart2, Settings, Radio, ClipboardList, Sparkles, CalendarRange,
   ChevronRight, ChevronLeft, Mail, CreditCard, X, CalendarClock,
-  ListMusic, Building2, Receipt, Baby
+  ListMusic, Building2, Receipt, Baby, Footprints
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -28,6 +28,7 @@ const STAFF_TOUR_STEPS = [
   { key: 'schedule', path: '/schedule', title: 'Schedule', icon: CalendarClock, minRole: 'attendance_tracker', description: "Plan out services and volunteer schedules for your ministry groups." },
   { key: 'set-lists', path: '/set-lists', title: 'Set Lists', icon: ListMusic, minRole: 'attendance_tracker', description: "Keep a song library with keys, tempo, and CCLI numbers, then build and reorder set lists for upcoming services." },
   { key: 'facility-booking', path: '/facility-booking', title: 'Facility Booking', icon: Building2, minRole: 'attendance_tracker', description: "Reserve rooms, equipment, and vehicles for events, with automatic conflict detection if a resource is already booked." },
+  { key: 'discipleship', path: '/discipleship', title: 'Discipleship Tracking', icon: Footprints, minRole: 'church_staff', description: "Walk members through your growth pipeline — new member class, small group, serving, and leadership — and see who's at each stage." },
   { key: 'ministry', path: '/ministry', title: 'Ministry Groups', icon: UsersRound, minRole: 'attendance_tracker', description: "Organize ministry teams — assign leaders, schedule volunteers, take group attendance, and send announcements." },
   { key: 'chat', path: '/chat', title: 'Communication', icon: MessageSquare, minRole: 'attendance_tracker', permission: 'access_church_chat', description: "Stay connected — chat with your church family in general channels or ministry group conversations. Church admins can also send bulk SMS and email messages to the congregation." },
   { key: 'contact-pastoral', path: '/contact-pastoral', title: 'Contact Pastoral Team', icon: Mail, minRole: 'attendance_tracker', description: "Send a private message to your church's pastoral team — always available, even without chat access." },
