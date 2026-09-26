@@ -52,6 +52,7 @@ const entityTableMap = {
   FormIntegration: 'form_integrations',
   ChurchSmsCredential: 'church_sms_credentials',
   ChurchSmsCredentials: 'church_sms_credentials',
+  ChildCheckin: 'child_checkins',
 AdminLockout: "admin_lockout",
 ChurchAccessCode: "church_access_codes",
 Survey: "surveys",

@@ -5,7 +5,8 @@ import useAppUser from '@/hooks/useAppUser';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CalendarCheck, Trash2, MonitorCheck, ExternalLink } from 'lucide-react';
+import { CalendarCheck, Trash2, MonitorCheck, ExternalLink, Baby } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { format, parseISO } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -194,20 +195,36 @@ export default function Attendance() {
           )}
 
           <TabsContent value="kiosk">
-            <Card>
-              <CardContent className="py-12 text-center">
-                <MonitorCheck className="w-12 h-12 mx-auto mb-3 text-primary" />
-                <h3 className="font-semibold text-lg mb-2">Kiosk Check-In Mode</h3>
-                <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
-                  Launch a full-screen check-in kiosk for volunteers to quickly check in children and attendees on a dedicated device.
-                </p>
-                <Button asChild>
-                  <a href={`/kiosk${user?.church_id ? `?church_id=${user.church_id}` : ''}`} target="_blank" rel="noopener noreferrer" className="gap-2">
-                    <ExternalLink className="w-4 h-4" /> Launch Kiosk
-                  </a>
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="grid md:grid-cols-2 gap-4">
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <MonitorCheck className="w-12 h-12 mx-auto mb-3 text-primary" />
+                  <h3 className="font-semibold text-lg mb-2">Kiosk Check-In Mode</h3>
+                  <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
+                    Launch a full-screen check-in kiosk for volunteers to quickly check in children and attendees on a dedicated device.
+                  </p>
+                  <Button asChild>
+                    <a href={`/kiosk${user?.church_id ? `?church_id=${user.church_id}` : ''}`} target="_blank" rel="noopener noreferrer" className="gap-2">
+                      <ExternalLink className="w-4 h-4" /> Launch Kiosk
+                    </a>
+                  </Button>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <Baby className="w-12 h-12 mx-auto mb-3 text-primary" />
+                  <h3 className="font-semibold text-lg mb-2">Child Check-In</h3>
+                  <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
+                    Check kids into their classroom with a matching pickup code, print a badge and a guardian claim ticket, and safely check them back out.
+                  </p>
+                  <Button asChild>
+                    <Link to="/child-checkin" className="gap-2">
+                      <Baby className="w-4 h-4" /> Open Child Check-In
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       )}
