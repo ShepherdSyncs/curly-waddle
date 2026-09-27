@@ -60,6 +60,7 @@ const entityTableMap = {
   FacilityBooking: 'facility_bookings',
   DiscipleshipStage: 'discipleship_stages',
   MemberDiscipleshipProgress: 'member_discipleship_progress',
+  ScheduleTemplate: 'schedule_templates',
 AdminLockout: "admin_lockout",
 ChurchAccessCode: "church_access_codes",
 Survey: "surveys",
@@ -208,16 +209,23 @@ const functions = {
   },
 };
 
+// Every call site invokes this as UploadFile({ file }) — a plain async
+// function, not the { upload(file, path) } object this used to be (which
+// nothing ever called correctly, and which pointed at a storage bucket
+// that didn't exist yet either).
+async function uploadFile({ file, path } = {}) {
+  if (!file) throw new Error('No file provided');
+  const safeName = (file.name || 'file').replace(/[^a-zA-Z0-9._-]/g, '_');
+  const finalPath = path || `${Date.now()}-${crypto.randomUUID?.() || Math.random().toString(36).slice(2)}-${safeName}`;
+  const { error } = await supabase.storage.from('uploads').upload(finalPath, file, { upsert: true });
+  if (error) throw error;
+  const { data: urlData } = supabase.storage.from('uploads').getPublicUrl(finalPath);
+  return { file_url: urlData.publicUrl };
+}
+
 const integrations = {
   Core: {
-    UploadFile: {
-      async upload(file, path) {
-        const { data, error } = await supabase.storage.from('uploads').upload(path, file);
-        if (error) throw error;
-        const { data: urlData } = supabase.storage.from('uploads').getPublicUrl(path);
-        return { file_url: urlData.publicUrl };
-      },
-    },
+    UploadFile: uploadFile,
     SendEmail(params) {
       throw new Error('SendEmail needs to be implemented as a Supabase Edge Function');
     },

@@ -67,7 +67,7 @@ const navItems = [
   { path: '/events', label: 'Events', icon: CalendarDays, minRole: 'attendance_tracker' },
   { path: '/sermons', label: 'Sermon Archive', icon: Mic, minRole: 'attendance_tracker' },
   { path: '/schedule', label: 'Schedule', icon: CalendarClock, minRole: 'attendance_tracker' },
-  { path: '/set-lists', label: 'Set Lists', icon: ListMusic, minRole: 'attendance_tracker' },
+  { path: '/service-plan', label: 'Service Plan', icon: ListMusic, minRole: 'attendance_tracker' },
   { path: '/facility-booking', label: 'Facility Booking', icon: Building2, minRole: 'attendance_tracker' },
   { path: '/discipleship', label: 'Discipleship Tracking', icon: Footprints, minRole: 'church_staff' },
   { path: '/ministry', label: 'Ministry Groups', icon: UsersRound, minRole: 'attendance_tracker' },

@@ -61,6 +61,29 @@ export default function ScheduleDialog({ group, editSchedule, user, onClose }) {
     return getMemberAvailability({ memberEmail, date: form.date, weeklyRules, exceptions });
   };
 
+  const { data: templates = [] } = useQuery({
+    queryKey: ['schedule-templates', group.church_id, group.id],
+    queryFn: () => base44.entities.ScheduleTemplate.filter({ church_id: group.church_id, group_id: group.id }, 'name', 50),
+    enabled: !!group.church_id && !!group.id && !isEdit,
+  });
+  const [templateId, setTemplateId] = useState('');
+  const [suggestedRoles, setSuggestedRoles] = useState([]);
+
+  const applyTemplate = (id) => {
+    setTemplateId(id);
+    const t = templates.find(x => x.id === id);
+    if (!t) { setSuggestedRoles([]); return; }
+    setForm(prev => ({
+      ...prev,
+      title: prev.title || t.default_title || '',
+      time: prev.time || t.default_time || '',
+      end_time: prev.end_time || t.default_end_time || '',
+      location: prev.location || t.default_location || '',
+      notes: prev.notes || t.default_notes || '',
+    }));
+    setSuggestedRoles(t.roles || []);
+  };
+
   const [selectedMemberEmail, setSelectedMemberEmail] = useState('');
   const [assigneeRole, setAssigneeRole] = useState('');
 
@@ -183,6 +206,17 @@ export default function ScheduleDialog({ group, editSchedule, user, onClose }) {
           {/* STEP 1: Service Details */}
           {showDetails && (
             <>
+              {!isEdit && templates.length > 0 && (
+                <div>
+                  <Label>Apply Template</Label>
+                  <Select value={templateId} onValueChange={applyTemplate}>
+                    <SelectTrigger className="mt-1"><SelectValue placeholder="Start from a template…" /></SelectTrigger>
+                    <SelectContent>
+                      {templates.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div>
                 <Label>Event Title *</Label>
                 <Input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="e.g. Sunday Morning Service" className="mt-1" />
@@ -241,6 +275,21 @@ export default function ScheduleDialog({ group, editSchedule, user, onClose }) {
                 <Users className="w-4 h-4" /> Assign Service Workers
               </p>
               <p className="text-xs text-muted-foreground">Add musicians, offering takers, security, SS teachers, and more.</p>
+              {suggestedRoles.length > 0 && (
+                <div className="flex gap-1.5 flex-wrap">
+                  <span className="text-xs text-muted-foreground mr-0.5 self-center">Suggested:</span>
+                  {suggestedRoles.map(r => (
+                    <button
+                      key={r}
+                      type="button"
+                      onClick={() => setAssigneeRole(r)}
+                      className={`text-xs px-2 py-0.5 rounded-full border transition-colors ${assigneeRole === r ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted/50 hover:bg-muted border-transparent'}`}
+                    >
+                      {r}
+                    </button>
+                  ))}
+                </div>
+              )}
               {form.assignees.length > 0 && (
                 <div className="space-y-1.5">
                   {form.assignees.map(a => (

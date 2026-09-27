@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import PageNotFound from '@/lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { ThemeProvider } from '@/lib/ThemeContext';
@@ -42,7 +42,8 @@ import PublicSignup from '@/pages/PublicSignup';
 import VerifyMembers from '@/pages/VerifyMembers';
 import KioskMode from '@/pages/KioskMode';
 import ChildCheckIn from '@/pages/ChildCheckIn';
-import SetLists from '@/pages/SetLists';
+import ServicePlans from '@/pages/ServicePlans';
+import LiveService from '@/pages/LiveService';
 import GivingStatements from '@/pages/GivingStatements';
 import FacilityBooking from '@/pages/FacilityBooking';
 import DiscipleshipTracking from '@/pages/DiscipleshipTracking';
@@ -69,6 +70,10 @@ const PUBLIC_PATHS = ['/live', '/give', '/pray', '/portal', '/signup', '/get-sta
 
 export const AuthenticatedApp = () => {
 const { isLoadingAuth, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
+// Reactive to client-side navigation — reading window.location.pathname
+// directly here meant clicking "Log In" on the marketing page updated the
+// URL but never re-rendered this component, so the button looked dead.
+const location = useLocation();
 
 if (isLoadingAuth) {
 return (<div className="fixed inset-0 flex items-center justify-center">
@@ -86,7 +91,7 @@ return <UserNotRegisteredError />;
 }
 
 if (authChecked && !isAuthenticated) {
-const path = window.location.pathname;
+const path = location.pathname;
 // The marketing home page is public — show it instead of bouncing to /login.
 if (path === '/') {
 return <Landing />;
@@ -141,7 +146,7 @@ return (<>
 <Route path="/follow-up" element={<FollowUpTasks />} />
 <Route path="/mass-texting" element={<MassTexting />} />
 <Route path="/child-checkin" element={<ChildCheckIn />} />
-<Route path="/set-lists" element={<SetLists />} />
+<Route path="/service-plan" element={<ServicePlans />} />
 <Route path="/giving-statements" element={<GivingStatements />} />
 <Route path="/facility-booking" element={<FacilityBooking />} />
 <Route path="/discipleship" element={<DiscipleshipTracking />} />
@@ -152,6 +157,7 @@ return (<>
 <Route path="/schedule" element={<ServiceSchedule />} />
 <Route path="/profile" element={<Profile />} />
 </Route>
+<Route path="/live-service/:id" element={<LiveService />} />
 <Route path="*" element={<PageNotFound />} />
 </Routes>
 </>);

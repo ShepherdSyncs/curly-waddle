@@ -7,13 +7,14 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CalendarClock, Plus, Trash2, Clock, Users, ListMusic } from 'lucide-react';
+import { CalendarClock, Plus, Trash2, Clock, Users, ListMusic, LayoutTemplate } from 'lucide-react';
 import { toast } from 'sonner';
 import { format, parseISO, isValid } from 'date-fns';
 import { Link } from 'react-router-dom';
 import ScheduleDialog from '@/components/ministry/ScheduleDialog';
 import GroupJoinRequestsPanel from '@/components/ministry/GroupJoinRequestsPanel';
 import BrowseGroupsPanel from '@/components/ministry/BrowseGroupsPanel';
+import ScheduleTemplateManager from '@/components/ministry/ScheduleTemplateManager';
 
 // Safely parse a date string that may be date-only ("2026-08-09") or a full ISO datetime.
 // Rejects malformed years (e.g. a stray extra digit) instead of producing a wild/invalid date.
@@ -40,6 +41,7 @@ export default function ServiceSchedule() {
   const [scheduleGroup, setScheduleGroup] = useState(null);
   const [editSchedule, setEditSchedule] = useState(null);
   const [newGroupId, setNewGroupId] = useState('');
+  const [showTemplates, setShowTemplates] = useState(false);
 
   const { data: groups = [] } = useQuery({
     queryKey: ['ministry-groups', churchId],
@@ -108,8 +110,13 @@ export default function ServiceSchedule() {
         {isStaff && (
           <div className="flex gap-2 items-center">
             <Button asChild variant="outline" className="gap-2">
-              <Link to="/set-lists"><ListMusic className="w-4 h-4" /> Set Lists</Link>
+              <Link to="/service-plan"><ListMusic className="w-4 h-4" /> Service Plan</Link>
             </Button>
+            {myManagedGroups.length > 0 && (
+              <Button variant="outline" className="gap-2" onClick={() => setShowTemplates(true)}>
+                <LayoutTemplate className="w-4 h-4" /> Templates
+              </Button>
+            )}
             {myManagedGroups.length > 0 && (
               <>
                 {myManagedGroups.length > 1 && (
@@ -274,6 +281,15 @@ export default function ServiceSchedule() {
           editSchedule={editSchedule}
           user={user}
           onClose={() => { setScheduleGroup(null); setEditSchedule(null); }}
+        />
+      )}
+
+      {showTemplates && (
+        <ScheduleTemplateManager
+          churchId={churchId}
+          groups={myManagedGroups}
+          defaultGroupId={newGroupId || myManagedGroups[0]?.id}
+          onClose={() => setShowTemplates(false)}
         />
       )}
     </div>
