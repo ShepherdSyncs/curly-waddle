@@ -18,9 +18,11 @@ function toLocalInput(iso) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export default function BookingFormDialog({ churchId, resources, booking, defaultResourceId, user, onClose }) {
+export default function BookingFormDialog({ churchId, resources, booking, defaultResourceId, user, church, canSetStatus, onClose }) {
   const queryClient = useQueryClient();
   const isEdit = !!booking?.id;
+  // Regular church members can request a room but can't self-approve — every
+  // request they submit goes in as "pending" for a church admin to review.
   const [form, setForm] = useState({
     resource_id: booking?.resource_id || defaultResourceId || (resources[0]?.id ?? ''),
     title: booking?.title || '',
@@ -29,7 +31,7 @@ export default function BookingFormDialog({ churchId, resources, booking, defaul
     requested_by_email: booking?.requested_by_email || user?.email || '',
     start_time: toLocalInput(booking?.start_time) || '',
     end_time: toLocalInput(booking?.end_time) || '',
-    status: booking?.status || 'approved',
+    status: booking?.status || (canSetStatus ? 'approved' : 'pending'),
     notes: booking?.notes || '',
   });
   const [confirmOverride, setConfirmOverride] = useState(false);
@@ -65,16 +67,40 @@ export default function BookingFormDialog({ churchId, resources, booking, defaul
         requested_by_email: form.requested_by_email.trim() || null,
         start_time: new Date(form.start_time).toISOString(),
         end_time: new Date(form.end_time).toISOString(),
-        status: form.status,
+        // A requester can't grant their own approval — force pending
+        // regardless of what's in state, even on a resubmitted edit.
+        status: canSetStatus ? form.status : 'pending',
         notes: form.notes.trim() || null,
       };
       if (isEdit) return base44.entities.FacilityBooking.update(booking.id, payload);
       return base44.entities.FacilityBooking.create({ ...payload, church_id: churchId });
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ['facility-bookings'] });
       queryClient.invalidateQueries({ queryKey: ['facility-bookings-all'] });
-      toast.success(isEdit ? 'Booking updated' : 'Booking created');
+      toast.success(isEdit ? 'Booking updated' : (canSetStatus ? 'Booking created' : 'Request sent — a church admin will review it'));
+      // Best-effort: notify church admins ("pastoral staff") that a new
+      // request needs their review. Never block on this.
+      if (!isEdit && !canSetStatus) {
+        const adminEmails = church?.admin_emails?.length
+          ? church.admin_emails
+          : church?.admin_email
+            ? [church.admin_email]
+            : church?.email
+              ? [church.email]
+              : [];
+        const resourceName = resources.find(r => r.id === form.resource_id)?.name || 'a resource';
+        for (const email of adminEmails) {
+          try {
+            await base44.integrations.Core.SendEmail({
+              to: email,
+              subject: `New facility request: ${form.title.trim()}`,
+              body: `A new facility booking request is awaiting your review.\n\nResource: ${resourceName}\nEvent: ${form.title.trim()}\nWhen: ${format(new Date(form.start_time), 'MMM d, yyyy h:mm a')} – ${format(new Date(form.end_time), 'h:mm a')}\nRequested by: ${form.requested_by_name.trim()} (${form.requested_by_email.trim()})\n${form.purpose.trim() ? `Purpose: ${form.purpose.trim()}\n` : ''}${form.notes.trim() ? `Notes: ${form.notes.trim()}\n` : ''}\nReview it in ShepherdSyncs under Facility Booking.`,
+              from_name: form.requested_by_name.trim() || 'ShepherdSyncs',
+            });
+          } catch (e) { /* best-effort per recipient */ }
+        }
+      }
       onClose();
     },
     onError: (err) => toast.error(err.message || 'Failed to save booking'),
@@ -92,7 +118,7 @@ export default function BookingFormDialog({ churchId, resources, booking, defaul
   return (
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
-        <DialogHeader><DialogTitle>{isEdit ? 'Edit Booking' : 'New Booking'}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>{isEdit ? 'Edit Booking' : (canSetStatus ? 'New Booking' : 'Request a Booking')}</DialogTitle></DialogHeader>
         <div className="space-y-3 mt-2">
           <div>
             <Label className="mb-1 block">Resource *</Label>
@@ -140,25 +166,37 @@ export default function BookingFormDialog({ churchId, resources, booking, defaul
             </div>
             <div>
               <Label className="mb-1 block">Contact Email</Label>
-              <Input type="email" value={form.requested_by_email} onChange={(e) => setForm({ ...form, requested_by_email: e.target.value })} />
+              <Input
+                type="email"
+                value={form.requested_by_email}
+                onChange={(e) => setForm({ ...form, requested_by_email: e.target.value })}
+                disabled={!canSetStatus}
+                className={!canSetStatus ? 'bg-slate-50' : ''}
+              />
             </div>
           </div>
           <div>
             <Label className="mb-1 block">Purpose</Label>
             <Input value={form.purpose} onChange={(e) => setForm({ ...form, purpose: e.target.value })} placeholder="Wedding, youth event, board meeting…" />
           </div>
-          <div>
-            <Label className="mb-1 block">Status</Label>
-            <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="approved">Approved</SelectItem>
-                <SelectItem value="pending">Pending Approval</SelectItem>
-                <SelectItem value="denied">Denied</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          {canSetStatus ? (
+            <div>
+              <Label className="mb-1 block">Status</Label>
+              <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="approved">Approved</SelectItem>
+                  <SelectItem value="pending">Pending Approval</SelectItem>
+                  <SelectItem value="denied">Denied</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          ) : (
+            <p className="text-xs text-slate-500 bg-slate-50 border rounded-lg p-2.5">
+              This request will be sent to your church's pastoral staff for approval. You'll be notified by email once it's reviewed.
+            </p>
+          )}
           <div>
             <Label className="mb-1 block">Notes</Label>
             <Textarea rows={2} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Setup needs, equipment, catering, etc." />
@@ -167,7 +205,7 @@ export default function BookingFormDialog({ churchId, resources, booking, defaul
           <div className="flex gap-2 pt-2">
             <Button variant="outline" className="flex-1" onClick={onClose}>Cancel</Button>
             <Button className="flex-1" onClick={handleSave} disabled={saveMutation.isPending}>
-              {saveMutation.isPending ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Booking'}
+              {saveMutation.isPending ? 'Saving…' : isEdit ? 'Save Changes' : (canSetStatus ? 'Create Booking' : 'Submit Request')}
             </Button>
           </div>
         </div>

@@ -22,10 +22,21 @@ const STATUS_STYLES = {
 };
 
 export default function FacilityBooking() {
-  const { user, isChurchAdmin, isGlobalAdmin, isStaff } = useAppUser();
+  const { user, isChurchAdmin, isGlobalAdmin } = useAppUser();
   const churchId = user?.church_id;
-  const canManage = isChurchAdmin || isGlobalAdmin || isStaff;
+  // Church admins manage the room/equipment list and are the "pastoral staff"
+  // who review requests (same admin-level group ContactPastoral already emails).
+  // Any signed-in church member can submit a booking request.
+  const canManageResources = isChurchAdmin || isGlobalAdmin;
+  const canReview = isChurchAdmin || isGlobalAdmin;
+  const canRequest = !!churchId;
   const queryClient = useQueryClient();
+
+  const { data: church } = useQuery({
+    queryKey: ['church-for-facility', churchId],
+    queryFn: async () => (await base44.entities.Church.filter({ id: churchId }))?.[0] || null,
+    enabled: !!churchId,
+  });
 
   const [tab, setTab] = useState('bookings');
   const [resourceFilter, setResourceFilter] = useState('all');
@@ -70,7 +81,22 @@ export default function FacilityBooking() {
   );
 
   const statusMutation = useMutation({
-    mutationFn: ({ id, status }) => base44.entities.FacilityBooking.update(id, { status }),
+    mutationFn: async ({ id, status, booking: b }) => {
+      const updated = await base44.entities.FacilityBooking.update(id, { status });
+      // Best-effort: let the requester know the outcome. Never block the
+      // status change itself if the email fails to send.
+      if (b?.requested_by_email && (status === 'approved' || status === 'denied')) {
+        try {
+          const resource = resourceById[b.resource_id];
+          await base44.integrations.Core.SendEmail({
+            to: b.requested_by_email,
+            subject: `Your facility request was ${status}: ${b.title}`,
+            body: `Hi ${b.requested_by_name || 'there'},\n\nYour request to book ${resource?.name || 'a resource'} for "${b.title}" (${format(new Date(b.start_time), 'MMM d, yyyy h:mm a')} – ${format(new Date(b.end_time), 'h:mm a')}) has been ${status}.\n\n${status === 'denied' ? 'Reach out to your church office if you have questions or want to try a different time.' : 'You\'re all set — see you then!'}\n\n— ${church?.name || 'Your Church'}`,
+          });
+        } catch (e) { /* best-effort */ }
+      }
+      return updated;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['facility-bookings', churchId] });
       queryClient.invalidateQueries({ queryKey: ['facility-bookings-all', churchId] });
@@ -99,6 +125,10 @@ export default function FacilityBooking() {
 
   const BookingRow = ({ b }) => {
     const resource = resourceById[b.resource_id];
+    const isOwner = !!user?.email && b.requested_by_email === user.email;
+    // Pastoral staff (church admins) manage any booking; a requester can
+    // still edit or cancel their own request while it's pending.
+    const canEditThis = canReview || (isOwner && b.status === 'pending');
     return (
       <div className="flex items-start justify-between gap-3 p-3 rounded-lg border bg-white">
         <div className="min-w-0 flex-1">
@@ -118,26 +148,28 @@ export default function FacilityBooking() {
             <p className="text-xs text-slate-400 mt-0.5">Requested by {b.requested_by_name}{b.requested_by_email ? ` (${b.requested_by_email})` : ''}</p>
           )}
         </div>
-        {canManage && (
-          <div className="flex items-center gap-1 shrink-0">
-            {b.status === 'pending' && (
-              <>
-                <Button size="icon" variant="ghost" className="text-emerald-600 hover:text-emerald-700" title="Approve" onClick={() => statusMutation.mutate({ id: b.id, status: 'approved' })}>
-                  <Check className="w-4 h-4" />
-                </Button>
-                <Button size="icon" variant="ghost" className="text-red-600 hover:text-red-700" title="Deny" onClick={() => statusMutation.mutate({ id: b.id, status: 'denied' })}>
-                  <X className="w-4 h-4" />
-                </Button>
-              </>
-            )}
-            <Button size="icon" variant="ghost" onClick={() => { setEditingBooking(b); setShowBookingDialog(true); }}>
-              <Pencil className="w-4 h-4" />
-            </Button>
-            <Button size="icon" variant="ghost" className="text-red-500 hover:text-red-600" onClick={() => { if (confirm('Delete this booking?')) deleteBookingMutation.mutate(b.id); }}>
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          </div>
-        )}
+        <div className="flex items-center gap-1 shrink-0">
+          {canReview && b.status === 'pending' && (
+            <>
+              <Button size="icon" variant="ghost" className="text-emerald-600 hover:text-emerald-700" title="Approve" onClick={() => statusMutation.mutate({ id: b.id, status: 'approved', booking: b })}>
+                <Check className="w-4 h-4" />
+              </Button>
+              <Button size="icon" variant="ghost" className="text-red-600 hover:text-red-700" title="Deny" onClick={() => statusMutation.mutate({ id: b.id, status: 'denied', booking: b })}>
+                <X className="w-4 h-4" />
+              </Button>
+            </>
+          )}
+          {canEditThis && (
+            <>
+              <Button size="icon" variant="ghost" onClick={() => { setEditingBooking(b); setShowBookingDialog(true); }}>
+                <Pencil className="w-4 h-4" />
+              </Button>
+              <Button size="icon" variant="ghost" className="text-red-500 hover:text-red-600" onClick={() => { if (confirm('Delete this booking?')) deleteBookingMutation.mutate(b.id); }}>
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </>
+          )}
+        </div>
       </div>
     );
   };
@@ -149,7 +181,11 @@ export default function FacilityBooking() {
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
             <Building2 className="w-6 h-6 text-indigo-600" /> Facility Booking
           </h1>
-          <p className="text-slate-500 text-sm">Reserve rooms, equipment, and vehicles, and manage conflicts.</p>
+          <p className="text-slate-500 text-sm">
+            {canReview
+              ? 'Reserve rooms, equipment, and vehicles, and review requests from your congregation.'
+              : 'Request a room, piece of equipment, or vehicle — your church admin will review and approve it.'}
+          </p>
         </div>
       </div>
 
@@ -168,9 +204,9 @@ export default function FacilityBooking() {
                 {resources.map(r => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}
               </SelectContent>
             </Select>
-            {canManage && (
-              <Button onClick={() => { if (activeResources.length === 0) { toast.error('Add a resource first'); return; } setEditingBooking(null); setShowBookingDialog(true); }}>
-                <Plus className="w-4 h-4 mr-1.5" /> New Booking
+            {canRequest && (
+              <Button onClick={() => { if (activeResources.length === 0) { toast.error('No rooms or resources are set up yet — ask your church admin to add one'); return; } setEditingBooking(null); setShowBookingDialog(true); }}>
+                <Plus className="w-4 h-4 mr-1.5" /> {canReview ? 'New Booking' : 'Request Booking'}
               </Button>
             )}
           </div>
@@ -199,7 +235,7 @@ export default function FacilityBooking() {
 
         <TabsContent value="resources" className="space-y-4 mt-4">
           <div className="flex items-center justify-end">
-            {canManage && (
+            {canManageResources && (
               <Button onClick={() => { setEditingResource(null); setShowResourceDialog(true); }}>
                 <Plus className="w-4 h-4 mr-1.5" /> Add Resource
               </Button>
@@ -224,7 +260,7 @@ export default function FacilityBooking() {
                     {r.capacity && <p className="flex items-center gap-1"><UsersIcon className="w-3.5 h-3.5" /> Capacity {r.capacity}</p>}
                     {r.notes && <p className="text-slate-400">{r.notes}</p>}
                     {r.is_active === false && <Badge variant="outline" className="bg-slate-100">Inactive</Badge>}
-                    {canManage && (
+                    {canManageResources && (
                       <div className="flex gap-2 pt-2">
                         <Button size="sm" variant="outline" onClick={() => { setEditingResource(r); setShowResourceDialog(true); }}>
                           <Pencil className="w-3.5 h-3.5 mr-1" /> Edit
@@ -256,6 +292,8 @@ export default function FacilityBooking() {
           booking={editingBooking}
           defaultResourceId={resourceFilter !== 'all' ? resourceFilter : undefined}
           user={user}
+          church={church}
+          canSetStatus={canReview}
           onClose={() => { setShowBookingDialog(false); setEditingBooking(null); }}
         />
       )}

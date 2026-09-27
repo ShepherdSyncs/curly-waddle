@@ -50,6 +50,8 @@ const userNavItems = [
   { path: '/sermons', label: 'Sermon Archive', icon: Mic },
   { path: '/directory', label: 'Member Directory', icon: BookMarked },
   { path: '/schedule', label: 'Schedule', icon: CalendarClock },
+  { path: '/facility-booking', label: 'Facility Booking', icon: Building2 },
+  { path: '/facility-booking', label: 'Facility Booking', icon: Building2 },
   { path: '/contact-pastoral', label: 'Contact Pastoral Team', icon: Mail },
 ];
 
